@@ -28,7 +28,9 @@ Workflow này phân tích requirement documents (Jira tickets, .doc files, user 
 - User cần danh sách các điểm mơ hồ (ambiguities) để clarify với PO/BA
 - User nói: "phân tích requirement", "review yêu cầu", "analyze this ticket"
 
-> **KHÔNG dùng workflow này khi** nguồn sự thật là hệ thống đang chạy (không có tài liệu) → dùng `/generate-requirements-from-website`.
+> **KHÔNG dùng workflow này khi:**
+> - Nguồn sự thật là hệ thống đang chạy (không có tài liệu) → `/generate-requirements-from-website` (web) · `/generate-requirements-from-mobile` (app mobile)
+> - Đầu vào là **đặc tả API** — OpenAPI/Swagger/Scalar/Redoc, Postman collection, hoặc `.docx`/`.pdf` mô tả endpoint — mà **không** gắn với một ticket → `/generate-requirements-from-api`. Workflow đó không cần Ticket ID, và ghi vào `requirements_<module>.md` thay vì `analysis_<TICKET-ID>.md`
 
 ### ⛔ Bước 0 — Chốt chặn đầu vào (BẮT BUỘC, làm TRƯỚC mọi thứ khác)
 
@@ -39,10 +41,19 @@ Workflow này nhận **tài liệu nguồn** (ticket, spec, user story) và sinh
 | Dấu hiệu tệp là ĐẦU RA, không phải đầu vào | Thuộc workflow nào | Route đúng |
 |---|---|---|
 | Tên khớp `requirements_<module>.md`, hoặc có bảng `REQ ID`/`Dải mã đã dùng`/`Nhật ký thay đổi` | `/generate-requirements-from-website` | Cập nhật theo ticket → `/update-requirements-from-ticket` · Sinh TC → `/generate_testcases_*` |
-| Tên khớp `system_map.md` / `api_map.md`, hoặc nằm trong `_discovery/` | `/discover-system` | Recon chi tiết một module → `/generate-requirements-from-website` |
+| Tên khớp `system_map.md`, hoặc nằm trong `_discovery/` (trừ `sources/`) | `/discover-system` | Recon chi tiết một module → `/generate-requirements-from-website` (web) · `/generate-requirements-from-mobile` (app) |
+| Tên khớp `api_map.md` | `/discover-system` nhánh API · `/generate-testcases-api` | Sinh REQ cho module API → **`/generate-requirements-from-api`** · Sinh TC API → `/generate-testcases-api` |
 | Tên khớp `analysis_<TICKET-ID>.md`, `impact_<TICKET-ID>.md`, `test_cases_<module>.md` | chính workflow này hoặc tầng test case | Hỏi user muốn làm gì với nó |
 
-**Không xác định được ticket ID** từ tệp đầu vào cũng là dấu hiệu đủ để dừng — đầu ra bắt buộc đặt tên theo `analysis_<TICKET-ID>.md`, không có ID thì không đặt tên được.
+**Tệp là đặc tả API, không phải tài liệu ticket** — cũng dừng và route, dù không phải sản phẩm của workflow khác:
+
+| Dấu hiệu | Route đúng |
+|---|---|
+| JSON/YAML có khoá `openapi` / `swagger` + `paths` · JSON có `info._postman_id` hoặc `item[].request` · snapshot trong `_discovery/sources/` · URL Swagger UI / Scalar / Redoc | `/generate-requirements-from-api` |
+| `.docx`/`.pdf` mà phần chính là bảng method/path, JSON mẫu request/response, bảng mã lỗi — **không** có Ticket ID | `/generate-requirements-from-api` (skill 3.4.6) |
+| Ticket (có ID) mô tả thay đổi của **một** API | ✅ Chạy tiếp ở đây — đó đúng là tài liệu ticket |
+
+**Không xác định được ticket ID** từ tệp đầu vào cũng là dấu hiệu đủ để dừng — đầu ra bắt buộc đặt tên theo `analysis_<TICKET-ID>.md`, không có ID thì không đặt tên được. Trước khi dừng, kiểm bảng ngay trên: tệp không có ID vì là **đặc tả API** thì route sang `/generate-requirements-from-api`, không chỉ dừng suông.
 
 ❌ **Không "cố suy ra" một ticket ID** từ tên module hay ngày tháng để chạy tiếp. Dừng và hỏi.
 
@@ -137,7 +148,7 @@ Khi có nhiều hơn một nguồn (mô tả ticket · comment · mockup · file
 
 | Hạng mục | Ticket mô tả | Comment | Mockup | File đính kèm | Kết luận |
 |---|---|---|---|---|---|
-| VD: độ dài tối đa Tên | không nói | 255 | — | 200 | ⚠️ Xung đột → AMB-XX |
+| VD: độ dài tối đa Tên | không nói | 255 | — | 200 | ⚠️ Xung đột → AMB-<MODULE>-XX |
 
 **Thứ tự ưu tiên khi mâu thuẫn** (mục 3.2 Bước 3 của skill) — luôn ghi rõ đã chọn nguồn nào và vì sao:
 
@@ -148,16 +159,16 @@ Khi có nhiều hơn một nguồn (mô tả ticket · comment · mockup · file
 4. Mockup/wireframe                           ← dễ lỗi thời nhất
 ```
 
-❗ **Xung đột KHÔNG được tự giải quyết im lặng** — mọi mâu thuẫn đều phải thành một `AMB-XX`, kể cả khi đã chọn được nguồn ưu tiên.
+❗ **Xung đột KHÔNG được tự giải quyết im lặng** — mọi mâu thuẫn đều phải thành một `AMB-<MODULE>-XX`, kể cả khi đã chọn được nguồn ưu tiên.
 
 ### Bước 4c: Xử lý tài liệu thiếu (rất hay gặp)
 
 | Tình huống | Cách xử lý |
 |---|---|
-| Ticket **không có AC nào**, chỉ 1–2 dòng mô tả | ❌ **KHÔNG tự viết AC thay PO/BA.** Ghi nhận đúng những gì có → liệt kê danh sách câu hỏi cần clarify dạng `AMB-XX` mức 🔴 High → ghi rõ ngay đầu tài liệu: *"Ticket chưa có AC — tài liệu này CHƯA ĐỦ để sinh test case"* |
-| AC mơ hồ ("hoạt động đúng", "như module cũ") | Gán REQ ID bình thường **nhưng** kèm ngay 1 `AMB-XX` hỏi tiêu chí cụ thể |
-| Tham chiếu "giống module X" | Nếu đã có `docs/requirements/<X>/requirements_<X>.md` → trích REQ tương ứng và **link chéo**. Chưa có → `AMB-XX`, không tự suy diễn |
-| Thiếu hoàn toàn thông tin phân quyền/trạng thái | Ghi **"Không đề cập trong tài liệu"** (KHÁC với "Không áp dụng") + `AMB-XX` |
+| Ticket **không có AC nào**, chỉ 1–2 dòng mô tả | ❌ **KHÔNG tự viết AC thay PO/BA.** Ghi nhận đúng những gì có → liệt kê danh sách câu hỏi cần clarify dạng `AMB-<MODULE>-XX` mức 🔴 High → ghi rõ ngay đầu tài liệu: *"Ticket chưa có AC — tài liệu này CHƯA ĐỦ để sinh test case"* |
+| AC mơ hồ ("hoạt động đúng", "như module cũ") | Gán REQ ID bình thường **nhưng** kèm ngay 1 `AMB-<MODULE>-XX` hỏi tiêu chí cụ thể |
+| Tham chiếu "giống module X" | Nếu đã có `docs/requirements/<X>/requirements_<X>.md` → trích REQ tương ứng và **link chéo**. Chưa có → `AMB-<MODULE>-XX`, không tự suy diễn |
+| Thiếu hoàn toàn thông tin phân quyền/trạng thái | Ghi **"Không đề cập trong tài liệu"** (KHÁC với "Không áp dụng") + `AMB-<MODULE>-XX` |
 
 ### Bước 5: Phát hiện Ambiguities & Risks (Trọng tâm)
 
@@ -167,7 +178,7 @@ Khi có nhiều hơn một nguồn (mô tả ticket · comment · mockup · file
 **5.1. Điểm mơ hồ (Ambiguities):**
 
 Áp dụng **Framework Phát Hiện Ambiguity & Risk (mục 4)** trong skill `skills-requirements-analyzer`. Với mỗi ambiguity, ghi rõ:
-- **Mã:** AMB-XX (đánh số tuần tự)
+- **Mã:** AMB-<MODULE>-XX (đánh số tuần tự)
 - **Câu hỏi:** Mô tả rõ ràng điều gì chưa rõ
 - **Nguy cơ:** Impact nếu không được giải quyết
 - **Mức độ:** 🔴 High / 🟡 Medium / 🟢 Low
@@ -184,7 +195,7 @@ Các hướng phát hiện ambiguity:
 **5.2. Rủi ro kiểm thử (Testing Risks):**
 
 Với mỗi risk, ghi rõ:
-- **Mã:** RISK-XX
+- **Mã:** RISK-<MODULE>-XX
 - **Tên rủi ro**
 - **Mô tả**
 - **Mitigation** (cách giảm thiểu)
@@ -254,7 +265,7 @@ Agent PHẢI xuất artifact theo cấu trúc sau:
 ## 1. Tổng Quan Ticket
 (Bảng metadata — BẮT BUỘC có 4 dòng sau, ngoài ID/Type/Priority/Status/Sprint/Assignee)
 | **Nguồn phân tích** | Liệt kê MỌI file/nguồn đã đọc: `ABC-123.docx` · `field_spec.xlsx` · 3 comments · mockup_v2.png |
-| **Dải mã đã dùng**  | `REQ-PRJ-66` → `REQ-PRJ-78` · `AMB-01` → `AMB-05` · `RISK-01` → `RISK-03` |
+| **Dải mã đã dùng**  | `REQ-PRJ-66` → `REQ-PRJ-78` · `AMB-PRJ-01` → `AMB-PRJ-05` · `RISK-PRJ-01` → `RISK-PRJ-03` |
 | **Mã kế tiếp**      | Đợt sau bắt đầu từ `REQ-PRJ-79` — KHÔNG đánh lại từ 01 |
 | **Mức độ đầy đủ**   | Đủ AC để sinh test case / ⚠️ Thiếu AC — chưa đủ (xem mục 7) |
 
@@ -304,13 +315,13 @@ Agent PHẢI xuất artifact theo cấu trúc sau:
 
 - **KHÔNG sinh test cases** — workflow này chỉ phân tích, không tạo TC
 - **KHÔNG chạy khi đầu vào là sản phẩm đầu ra của workflow khác** (`requirements_<module>.md`, `system_map.md`, `analysis_*.md`, `test_cases_*.md`) — xem **Bước 0**. Dừng và hỏi ý định thật, tuyệt đối không sinh một bản diễn đạt lại của tài liệu đã có
-- **KHÔNG tự viết AC thay PO/BA.** Ticket thiếu AC → ghi nhận đúng thực trạng + `AMB-XX` 🔴 High. Đây là luật tương đương "không đoán locator" của nhánh UI — vi phạm là tài liệu mất giá trị hoàn toàn
+- **KHÔNG tự viết AC thay PO/BA.** Ticket thiếu AC → ghi nhận đúng thực trạng + `AMB-<MODULE>-XX` 🔴 High. Đây là luật tương đương "không đoán locator" của nhánh UI — vi phạm là tài liệu mất giá trị hoàn toàn
 - **KHÔNG đánh lại mã REQ từ `01`** nếu module đã có tài liệu — luôn đánh tiếp từ số cuối (mục 2.1 của skill). Đụng mã là vỡ toàn bộ RTM
 - **KHÔNG đọc file nhị phân bằng `Read`** (`.docx`/`.xlsx`/`.pdf`/`.pptx`) — ủy quyền đúng skill. Đọc không được thì **dừng và báo user**, không suy đoán từ tên file
 - **KHÔNG tự fetch URL Jira/Confluence** — route sang `/fetch-jira-requirements`. MCP chưa authorize thì báo user, tuyệt đối không bịa nội dung ticket
 - **KHÔNG tự đoán** business logic nếu document không nói rõ → đưa vào Ambiguities
 - **KHÔNG bỏ qua comments** trong Jira ticket — comments thường là quyết định mới nhất và **đè lên** phần mô tả gốc
-- **KHÔNG tự giải quyết im lặng xung đột giữa các nguồn** — luôn thành `AMB-XX`, kể cả khi đã áp thứ tự ưu tiên
+- **KHÔNG tự giải quyết im lặng xung đột giữa các nguồn** — luôn thành `AMB-<MODULE>-XX`, kể cả khi đã áp thứ tự ưu tiên
 
 ### Bắt buộc (✅)
 
@@ -319,7 +330,7 @@ Agent PHẢI xuất artifact theo cấu trúc sau:
 - **PHẢI ghi vị trí nguồn cụ thể** ở cột `Nguồn`, đủ để người review mở đúng chỗ đối chiếu:
   ```
   ✅ Ticket ABC-123 · AC#4           ✅ field_spec.xlsx · sheet "Fields" · dòng 12
-  ✅ Comment của PO ngày 2026-07-15   ❌ "theo tài liệu"    ❌ "trong ticket"
+  ✅ Comment của PO ngày 15-07-2026   ❌ "theo tài liệu"    ❌ "trong ticket"
   ```
 - **PHẢI đọc related tickets** nếu được reference trong AC
 - **PHẢI khai thác file bảng đính kèm** (`.xlsx`/`.csv`) — nguồn Field Spec / Validation Message / ma trận tốt nhất
@@ -339,3 +350,4 @@ Agent PHẢI xuất artifact theo cấu trúc sau:
 | Cần sinh test cases bài bản (RBT 6 bước) | `/generate-testcases-manual-rbt` |
 | Cần sinh automation scripts | `/generate-automation-from-testcases` |
 | Cần phân tích cross-module | `/generate-cross-module-test-plan` |
+| Ticket có đính kèm spec API (OpenAPI, Postman, file mô tả endpoint) | Phân tích ticket ở đây, **đặc tả đính kèm** chạy `/generate-requirements-from-api` để REQ của từng endpoint vào tài liệu module |

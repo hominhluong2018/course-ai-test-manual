@@ -14,8 +14,8 @@ Mở [`bundle.html`](bundle.html) bằng trình duyệt — double-click là đ�
 Kéo thả, hoặc bấm **+ Import thư mục** / **+ Import file .md** ở góc trên (hai nút này luôn hiện, kể cả sau khi đã nạp dữ liệu — bấm thêm được bất cứ lúc nào), ví dụ:
 
 ```
-docs/executions/customers/run_1785700456/execution_report.md
-docs/executions/customers/retest_1785700999/retest_report.md
+docs/executions/customers/web/run_1785700456/execution_report.md
+docs/executions/customers/web/retest_1785700999/retest_report.md
 traceability_matrix.md
 ```
 
@@ -51,7 +51,7 @@ Nạp **nhiều file/thư mục** để gộp số liệu và so sánh giữa c�
 Trả lời câu hỏi *"test case manual nào đã có script automation"*.
 
 > ⚠️ **Nguồn phải là `traceability_matrix.md`** do `/generate-traceability-matrix` sinh ra — workflow đó quét **code thật** để biết TC nào có script.
-> **Đừng** dùng cột `Automatable` trong file test case: đó là **dự định** lúc viết TC, không phải **thực tế** đã automate. Hai con số này lệch nhau rất nhanh.
+> **Đừng** dùng cột `Automation` trong file test case: đó là **dự định** lúc viết TC, không phải **thực tế** đã automate. Hai con số này lệch nhau rất nhanh.
 
 **Bốn trạng thái, suy ra từ dữ liệu chứ không đọc cột `Trạng thái` của file:**
 

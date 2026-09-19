@@ -24,8 +24,6 @@ Sử dụng skill này khi:
 
 > 🚨 **Phân biệt rõ:** skill này chấm **chất lượng cách viết** theo rubric — một TC mô tả rất tốt về hành vi **đã bị thay đổi** vẫn đạt 12/12 điểm, vì rubric không đối chiếu với REQ mới. Nó **không bắt được TC stale**.
 >
-> Ngoài ra Mode FIX của skill này sinh file `<tên>_improved.md` — **lạc tên index** `test_cases_<module>.md` mà các workflow phía sau đọc theo mẫu. Dùng nó để cập nhật theo ticket là vừa bỏ sót TC stale, vừa để lại hai bộ TC không ai biết bộ nào đang dùng.
->
 > Thứ tự đúng: `/update-testcases-from-impact` đồng bộ nội dung **trước** → skill này chấm chất lượng **sau**.
 
 ---
@@ -56,12 +54,31 @@ Ngoài review từng TC, đánh giá độ phủ của cả bộ:
 
 | Khía cạnh | Kiểm tra |
 |---|---|
-| **Happy path** | Các luồng chính đã có TC chưa? |
-| **Negative cases** | Input sai, quyền không đủ, hành động không hợp lệ |
-| **Boundary values** | Min/max length, 0, giá trị biên, ký tự đặc biệt, Unicode |
-| **State/Edge cases** | Data rỗng, danh sách dài, session hết hạn, double-click/double-submit |
+| **Đối soát 4 vòng** ⭐ | Xem bên dưới — đây là phần bắt lỗi "bộ TC nông" hiệu quả nhất |
+| **Đối soát bảng 15 loại field** ⭐ | Với TỪNG field, so từng mục của dòng loại field trong `skills-rbt-manual-testing` với TC thực có. Thiếu mục nào, liệt kê đích danh mục đó |
 | **Trùng lặp** | Các TC verify cùng 1 thứ → đề xuất merge |
 | **Ưu tiên** | TC có gán priority (High/Medium/Low) chưa? Có hợp lý với risk không? |
+| **Số biến thể (khi độ hạt GỘP)** | Đếm biến thể thật trong Bảng biến thể. Bộ TC gộp mà tổng biến thể ít bất thường = đã rụng case, dù số REQ vẫn phủ đủ |
+
+### Đối soát 4 vòng (BẮT BUỘC — mức bộ TC)
+
+Dùng **Bản Đồ Loại Kiểm Thử — 4 Vòng** trong `skills-rbt-manual-testing`. Duyệt từng nhánh, chấm bộ TC đang review:
+
+| Vòng | Nhánh phải soi |
+|---|---|
+| **V1 Smoke** | UI cơ bản · Open form · Display · Input valid · Save · Verify data |
+| **V2 Functional** | UI Behavior · Required · Validation · EP · BVA · Business Rule · Decision Table · State Transition · Dependency · Use Case · Save/Edit/Delete · Error Guessing |
+| **V3 Technical** | Permission · Security · API · Database · Integration · Logging/Audit |
+| **V4 Non-functional** | Compatibility · Responsive · Accessibility · Performance · Regression · E2E |
+
+- Nhánh **không có TC nào** mà điều kiện kích hoạt đã thoả → ghi vào **Coverage Gaps** với loại là tên nhánh, **không** ghi chung chung "thiếu negative case"
+- 🚨 **Ba nhánh soi kỹ nhất, cũng là ba chỗ hay mất nhất:**
+  - `UI cơ bản` (V1) — bộ TC không kiểm nhãn nguyên văn / thứ tự field / trạng thái mặc định là **thiếu hẳn một lớp**, dù mọi validation đều đủ. Đây là lỗi phổ biến số 1
+  - `Validation` (V2) — đọc lướt bảng 15 loại rồi sinh 2–3 TC/field. Password có 9 mục, Email có 9 mục: sinh 3 TC là **chưa đạt**
+  - `Permission` (V3) — hệ thống có ≥2 role mà không có TC phân quyền nào
+- Nhánh không áp dụng với module → ghi `➖` kèm lý do, **không** tính là gap
+
+> ⚠️ Rubric 6 tiêu chí chấm **cách viết từng TC**. Một bộ TC chỉ có 12 TC validation, viết rất đẹp, vẫn ra 🟢 toàn bộ — **rubric không nhìn thấy phần thiếu**. Đối soát 4 vòng là chỗ duy nhất bắt được. Bỏ qua mục này thì report của skill sẽ xác nhận sai rằng bộ TC đã ổn.
 
 ---
 
@@ -79,6 +96,8 @@ Ngoài review từng TC, đánh giá độ phủ của cả bộ:
 
 ## Report Template
 
+Lưu tại `docs/testcases/<module>/review/testcase_review_report_<nền-tảng>_<YYYYMMDD>.md` — cạnh bộ TC được chấm.
+
 ```markdown
 # Báo Cáo Review Test Cases
 
@@ -94,10 +113,20 @@ Ngoài review từng TC, đánh giá độ phủ của cả bộ:
 | TC_01 | 11/12 | 🟢 | Thiếu ghi chú data random | Thêm "email = random unique" |
 | TC_02 | 7/12 | 🟡 | Expected mơ hồ; gộp 2 kịch bản | Tách thành TC_02a/02b; Expected: "..." |
 
-## Coverage Gaps (TC còn thiếu)
-| # | Kịch bản thiếu | Loại | Priority đề xuất |
+## Đối soát loại kiểm thử (4 vòng)
+| Vòng | Nhánh | Trạng thái | Ghi chú |
 |---|---|---|---|
-| 1 | Login với account bị khóa | Negative | High |
+| 1 | UI cơ bản | 🔴 Thiếu | Không có TC nào kiểm nhãn, thứ tự field, trạng thái mặc định |
+| 2 | Validation | 🟡 Nông | Password mới có 3/9 mục của bảng 15 loại field |
+| 3 | Permission | ✅ | TC_20–TC_26 |
+| 4 | Responsive | ➖ | Module chỉ dùng nội bộ trên desktop — đã thống nhất với PO |
+
+## Coverage Gaps (TC còn thiếu)
+| # | Kịch bản thiếu | Vòng / Nhánh | Priority đề xuất |
+|---|---|---|---|
+| 1 | Màn hình Login hiển thị đủ nhãn `Email Address`, `Password`, nút `Login`, liên kết `Forgot Password?` đúng thứ tự | V1 · UI cơ bản | High |
+| 2 | Mật khẩu: chặn dán · nút hiện/ẩn · độ dài tối đa · ký tự khoảng trắng | V2 · Validation | High |
+| 3 | Login với account bị khóa | V2 · Business Rule | High |
 
 ## TC trùng lặp — đề xuất merge
 - TC_05 ≈ TC_12 (cùng verify validation email) → giữ TC_05, bỏ TC_12
@@ -112,8 +141,27 @@ Ngoài review từng TC, đánh giá độ phủ của cả bộ:
 
 - [ ] Mỗi TC 🔴/🟡 đều có đề xuất sửa cụ thể (không chê chung chung)
 - [ ] Coverage gap liệt kê kịch bản cụ thể, không nói "thiếu negative case" suông
-- [ ] Không tự ý sửa file TC gốc — chỉ báo cáo, trừ khi user yêu cầu sửa
-- [ ] Nếu user yêu cầu sửa → sinh phiên bản mới, giữ nguyên file gốc
+- [ ] **Đã chạy đối soát 4 vòng** — mọi nhánh được chấm ✅/🟡/🔴/➖, không ô nào bỏ trống
+- [ ] **Đã đối soát bảng 15 loại field cho TỪNG field** — mục thiếu nêu đích danh (VD "Password thiếu: chặn dán, hiện/ẩn, max length")
+- [ ] Gap ghi kèm **vòng/nhánh** tương ứng, không ghi loại chung chung
+- [ ] Không tự ý sửa file TC — chỉ báo cáo, trừ khi user yêu cầu sửa
+- [ ] Nếu user yêu cầu sửa → sửa **tại chỗ** theo mục *Sửa TC (Mode FIX)*, **không** sinh bản sao `_improved` / `_v2` / `_new`
+- [ ] Đã đối chiếu execution report của module — ghi chú `⚠️ chưa có evidence` / `@NeedsVerify` đã được giải quyết được đưa vào báo cáo để dọn
+
+---
+
+## Sửa TC (Mode FIX) — TẠI CHỖ, không sinh bản sao
+
+| Việc | Cách làm |
+|---|---|
+| **Ghi vào đâu** | Chính file TC đang dùng — cùng tên, cùng vị trí. 🚨 **CẤM** sinh `<tên>_improved.md` / `_v2` / `_new` hay thư mục `archive/` |
+| **Giữ bản cũ thế nào** | Ghi **mốc git** (`git log -1 --format=%h -- <file>`) vào Nhật ký thay đổi của index; xem lại bằng `git show <mốc>:<file>` |
+| **File chưa được git theo dõi** (Excel/CSV khách gửi) | **Hỏi user** trước khi ghi đè — không có mốc git để lấy lại bản cũ |
+| **TC ID** | Giữ nguyên. TC bỏ hẳn → `🗑️ Deprecated`, không xoá dòng. TC mới → nối tiếp mã kế tiếp |
+| **Phạm vi** | Chỉ các TC user đã duyệt ở checkpoint — không tiện tay sửa TC khác |
+| **Sau khi sửa** | Đồng bộ file index (Assumptions · Coverage · Vùng chưa có evidence · 4 vòng · tổng TC/biến thể · Bộ chạy) + 1 dòng Nhật ký |
+
+> **Vì sao không sinh bản sao:** mọi workflow phía sau đọc file TC theo mẫu tên cố định (`test_cases_<module>.md` → `<nền-tảng>/test_cases_<module>_<nền-tảng>.md`). Bản `_improved` nằm cạnh bản gốc thì các workflow đó **vẫn đọc bản cũ**, và repo có hai bộ TC không ai biết bộ nào có hiệu lực. Việc duyệt trước khi sửa đã có checkpoint + báo cáo review; việc quay lại bản cũ đã có git.
 
 ---
 

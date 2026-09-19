@@ -3,11 +3,11 @@
 # CONTEXT
 - Module: [VD: Đăng nhập / Khách hàng / Dự án — module PHẢI đã recon xong, có docs/requirements/<module>/]
 - Đối tượng đọc + vai trò: [VD: Nhân viên nội bộ vai trò Admin và Project Manager / Khách hàng dùng cổng /login]
-- Phiên bản phần mềm ghi ở đầu tài liệu: [VD: v2.4 — hoặc "trạng thái khảo sát ngày 2026-08-18" nếu hệ thống không công bố số phiên bản]
+- Phiên bản phần mềm ghi ở đầu tài liệu: [VD: v2.4 — hoặc "trạng thái khảo sát ngày 18-08-2026" nếu hệ thống không công bố số phiên bản]
 
 # MODE
 [Xoá dòng không dùng:]
-- DOC — dùng lại ảnh trong docs/requirements/<module>/evidence/, không mở browser
+- DOC — dùng lại ảnh trong docs/requirements/<module>/<nền-tảng>/evidence/, không mở browser
 - LIVE — mở browser thật, làm từng việc, chụp ảnh mới bằng dữ liệu mẫu
 
 # TÀI KHOẢN (chỉ Mode LIVE)

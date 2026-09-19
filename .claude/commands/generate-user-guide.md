@@ -59,7 +59,7 @@ Tài liệu để **người dùng cuối làm được việc**, không phải 
 
 1. `docs/requirements/README.md` — xác nhận module đã recon (⬜ Chưa recon → **dừng**, đề nghị chạy `/generate-requirements-from-website` trước)
 2. `docs/requirements/<module>/requirements_<module>.md` — luồng, trường bắt buộc, thông báo, ma trận phân quyền
-3. **Mở 100% ảnh** trong `docs/requirements/<module>/evidence/` — nhìn thật, không đọc tên file rồi đoán
+3. **Mở 100% ảnh** trong `docs/requirements/<module>/<nền-tảng>/evidence/` — nhìn thật, không đọc tên file rồi đoán
 4. Ghi lại: nhãn nút/menu **nguyên văn**, thông báo **nguyên văn**, trường bắt buộc, thao tác không hồi lại được (→ cảnh báo ⚠️)
 
 > Requirements ghi có tính năng nhưng không ảnh nào cho thấy nó → **không viết**, đưa vào mục 6.
@@ -119,8 +119,7 @@ docs/user-guides/
 └── <module>/
     ├── user_guide_<module>.md             ← INDEX — TÊN FILE BẤT BIẾN
     ├── images/*.png                        ← ảnh minh hoạ, tên theo việc
-    ├── parts/part_NN_<slug>.md             ← chỉ khi > 15 việc
-    └── archive/user_guide_<module>_vN.md   ← bản cũ khi viết lại lớn
+    └── parts/part_NN_<slug>.md             ← chỉ khi > 15 việc
 ```
 
 Mỗi việc viết theo thứ tự: **Khi nào dùng** → **các bước đánh số** → **cảnh báo đặt ngay trước bước gây hậu quả** → **bảng "Nếu không được"**.
@@ -157,7 +156,7 @@ Cập nhật `docs/user-guides/README.md`: module · role · phiên bản phần
 
 ## Cập nhật khi UI đổi
 
-**Không viết lại từ đầu.** Theo bảng *Bảo Trì* trong skill: sửa đúng việc bị ảnh hưởng, chụp lại ảnh của **các bước đổi**, tăng **Phiên bản tài liệu**, cập nhật **Áp dụng cho phiên bản phần mềm**. Bản cũ chuyển vào `archive/` nếu viết lại lớn.
+**Không viết lại từ đầu.** Theo bảng *Bảo Trì* trong skill: sửa đúng việc bị ảnh hưởng, chụp lại ảnh của **các bước đổi**, tăng **Phiên bản tài liệu**, cập nhật **Áp dụng cho phiên bản phần mềm**. Bản cũ tra bằng lịch sử git — **không** tạo thư mục `archive/`.
 
 > Ticket đổi UI đã chạy `/update-requirements-from-ticket` → đọc **Impact Report** để biết đúng việc nào cần sửa, thay vì rà lại cả tài liệu.
 
