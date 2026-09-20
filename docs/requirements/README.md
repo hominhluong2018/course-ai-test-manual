@@ -33,11 +33,11 @@ Tài khoản đang dùng **không phải Super Admin**. Toàn bộ vùng **Setup
 
 ## 1. Bảng danh mục module
 
-Tổng: **28 module** · đã có tài liệu: **0** · còn trắng: **28**
+Tổng: **28 module** · đã có tài liệu: **1** · còn trắng: **27**
 
 | # | Module — tên trên website (tiếng Việt) | Prefix | Nền tảng | Trạng thái recon | Mức phủ tài liệu | Tài liệu | REQ đã dùng | Mã kế tiếp | AMB treo | Cập nhật |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 01 | **Login** (Đăng nhập & Phiên làm việc) | `LOGIN` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-LOGIN-01` | — | 19-09-2026 |
+| 01 | **Login** (Đăng nhập & Phiên làm việc) | `LOGIN` | Web ✅ | ✅ Đã có tài liệu | ⬜ Trắng | [requirements_login.md](login/requirements_login.md) | 01 → 40 | `REQ-LOGIN-41` | AMB-LOGIN-01, 02, 03, 04, 09 | 20-09-2026 |
 | 02 | **Customers** (Khách hàng) | `CUST` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CUST-01` | — | 19-09-2026 |
 | 03 | **Contacts** (Người liên hệ của khách hàng) | `CTC` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CTC-01` | — | 19-09-2026 |
 | 04 | **Leads** (Khách hàng tiềm năng) | `LEAD` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-LEAD-01` | — | 19-09-2026 |
@@ -131,11 +131,15 @@ TASK · TICKET · TIME · TODO · UTIL
 
 ## 2. Trạng thái REQ toàn hệ thống
 
-Chưa có REQ nào — tầng khám phá **không cấp số REQ** (chỉ cấp prefix). Bảng này được điền khi từng module chạy xong `/generate-requirements-from-website`.
+Bảng được điền dần khi từng module chạy xong `/generate-requirements-from-website`.
 
 | Module | 🟢 Rõ ràng | 🟡 Cần làm rõ | 🔴 Deprecated | ⚪ Chưa implement | Tổng |
 |---|---|---|---|---|---|
-| *(tất cả 28 module)* | — | — | — | — | 0 |
+| **Login** (`LOGIN`) | 39 | — | — | 1 | **40** |
+| *(27 module còn lại)* | — | — | — | — | 0 |
+| **Toàn hệ thống** | **39** | **—** | **—** | **1** | **40** |
+
+REQ ⚪ duy nhất là `REQ-LOGIN-34` (gửi yêu cầu đặt lại mật khẩu cho email có thật) — chưa kiểm chứng vì thao tác đó **gửi email thật ra ngoài**. Xem `AMB-LOGIN-10`.
 
 ---
 
@@ -146,6 +150,11 @@ Chưa có REQ nào — tầng khám phá **không cấp số REQ** (chỉ cấp 
 | `AMB-SYS-01` | Tài khoản trong `.env` không có quyền vào vùng Setup (`/admin/staff` → `/admin/access_denied`). Toàn bộ Vai trò · Phân quyền · Cấu hình · Danh mục hệ thống **chưa khảo sát được**, và ma trận phân quyền của **mọi** module sẽ chỉ ở mức suy diễn `⚠️` | Chặn 28/28 module ở mục Ma trận Phân quyền | PO / Quản trị hệ thống — xin tài khoản Super Admin |
 | `AMB-SYS-02` | Hệ thống có những vai trò (role) nào? Không đọc được vì màn hình quản lý vai trò bị chặn | Chặn việc lập ma trận phân quyền cấp hệ thống | PO |
 | `AMB-SYS-03` | Cổng Khách hàng/Người dùng nằm ở URL nào, tài khoản nào? Người dùng đã xác nhận có nhưng chưa cung cấp | Chưa lập được bản đồ mặt thứ hai của hệ thống | Người dùng |
+| `AMB-LOGIN-01` | Hệ thống có khoá tài khoản sau N lần đăng nhập sai không? Chỉ kiểm được trên email không tồn tại (6 lần không bị chặn); không dám thử trên tài khoản thật vì đó là tài khoản **duy nhất** | `STORY-LOGIN-04` đang `BLOCKED` | Dev / PO — và cần **tài khoản phụ** |
+| `AMB-LOGIN-02` | Màn hình Quên mật khẩu trả `Email not found` (lộ email nào chưa đăng ký), trong khi trang đăng nhập cố tình **không** lộ. Cố ý hay sơ suất? | Lỗ hổng dò danh tính nếu là sơ suất | PO / Dev |
+| `AMB-LOGIN-03` | Vì sao cookie `autologin` đặt `HttpOnly = false`, trong khi cookie này **một mình đủ để vào hệ thống** và sống ~62 ngày? | XSS ở bất kỳ module nào cũng lấy được token đăng nhập dài ngày | Dev |
+| `AMB-LOGIN-04` | Vì sao không ép HTTPS và không đặt header HSTS? | Trang đăng nhập phục vụ được qua kênh không mã hoá | Dev / Quản trị hạ tầng |
+| `AMB-LOGIN-09` | Hệ thống có những vai trò nào, mỗi vai trò đăng nhập có khác biệt gì? | 10/20 ô ma trận phân quyền của `LOGIN` là `❔` | PO — hệ quả của `AMB-SYS-01` |
 
 ---
 
@@ -196,3 +205,5 @@ docs/
 | 19-09-2026 | **Đổi quy ước đặt tên module sang `Tên trên website (tiếng Việt)`** theo yêu cầu người dùng, áp cho toàn bộ `README.md`, `system_map.md` và 21 tệp module — gồm cả tên màn hình trong Danh mục Evidence. Thêm bảng đối chiếu Anh–Việt ở mục 1. **Prefix giữ nguyên tuyệt đối** | `/discover-system` — chuẩn hoá cách đặt tên |
 | 19-09-2026 | **Đổi tên 21 tệp module sang slug tiếng Anh** (`module_02_khach_hang.md` → `module_02_customers.md`), cập nhật 72 tham chiếu trong `system_map.md`. Cố ý lệch CLAUDE.md mục 6.5 — người dùng chốt. **Prefix, số thứ tự module và nội dung tệp không đổi** | `/discover-system` — chuẩn hoá tên tệp |
 | 19-09-2026 | **Tách `Contacts` khỏi `CUST` và `Payments` khỏi `INV`** theo yêu cầu người dùng. Cấp 2 prefix mới **`CTC`** · **`PAY`** → **28 module / 23 tệp**. Đánh số lại tệp module theo thứ tự khảo sát; đổi tên 2 ảnh evidence theo prefix mới. Ước REQ: `CUST` 85–110 → 55–70, `INV` 70–90 → 50–65. **Sửa lại tổng ước lượng toàn hệ thống thành ~706–942 REQ** — các con số ghi trước đó trong ngày là cộng nhẩm sai | Người dùng chốt |
+| 20-09-2026 | Phát hành tài liệu requirements module **`LOGIN`** — 40 REQ, 12 AMB, 6 RISK, 9 Story, 18 ảnh evidence. Cập nhật dòng `LOGIN`: `Nền tảng` → Web ✅, `Trạng thái recon` → ✅, `REQ đã dùng` 01 → 40, `Mã kế tiếp` `REQ-LOGIN-41`, `AMB treo` 5 mã 🔴. Bổ sung bảng trạng thái REQ (mục 2) và 5 ambiguity 🔴 (mục 3) | `/generate-requirements-from-website LOGIN` |
+| 20-09-2026 | **Đối chiếu danh mục ↔ thư mục thực tế:** glob `docs/requirements/*/requirements_*.md` ra đúng 1 module (`login`), khớp với dòng duy nhất đang ở trạng thái ✅. Không phát hiện module thiếu dòng, dòng mồ côi, lệch `Mã kế tiếp`, hay trùng prefix | Đối chiếu bắt buộc của workflow |

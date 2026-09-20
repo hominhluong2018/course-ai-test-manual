@@ -8,9 +8,13 @@
 | **Tên trên website** | Authentication |
 | **Nền tảng** | Web |
 | **Risk** | 🔴 Cao |
-| **Ước REQ** | 12–18 |
+| **Ước REQ** | ~~12–18~~ → **40 REQ thực tế** (đã phát hành 20-09-2026) |
 
 > Trạng thái recon là bản gốc ở [`../../README.md`](../../README.md) — tệp này không nhân bản.
+>
+> ✅ **Module này đã recon xong.** Tài liệu chính thức: [`../../login/requirements_login.md`](../../login/requirements_login.md) — 40 REQ · 12 AMB · 6 RISK · 9 Story · 18 ảnh evidence.
+>
+> Tệp khám phá này **giữ nguyên** làm dấu vết của tầng khám phá; mọi thông tin dưới đây là ảnh chụp thời điểm 19-09-2026, **không** phải nguồn sự thật. Nguồn sự thật là tài liệu requirements ở trên.
 
 ## Route
 

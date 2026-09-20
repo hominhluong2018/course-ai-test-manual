@@ -355,6 +355,7 @@ Xếp theo **phụ thuộc trước, risk sau** — không theo bảng chữ cá
 | 19-09-2026 | **UI** · Web — bổ sung | Màn hình **Quên mật khẩu** (`/admin/authentication/forgot_password`) | Người dùng chỉ ra thiếu: lượt trước chỉ chụp *liên kết* `Forgot Password?` chứ chưa mở màn hình phía sau. Đã mở thật, đọc DOM và chụp → **34 ảnh**. Ghi nhận màn hình **không có liên kết quay lại đăng nhập** và tiêu đề tab vẫn là `... - Login` | `Kiểm chứng thực tế` — người dùng phát hiện thiếu |
 
 | 19-09-2026 | **UI** · Web — tái cấu trúc | Tách `Contacts` khỏi `CUST` và `Payments` khỏi `INV` | Người dùng chốt tách. Cấp 2 prefix mới **`CTC`** và **`PAY`** → **28 module / 23 tệp**. Đánh số lại tệp module theo thứ tự khảo sát, đổi tên 2 ảnh theo prefix mới. Ước REQ của `CUST` giảm 85–110 → 55–70, `INV` giảm 70–90 → 50–65 | Người dùng chốt |
+| 20-09-2026 | Recon cấp module — `LOGIN` | Phát hành `docs/requirements/login/` | ⚠️ **Lệch lớn so với bản đồ khám phá:** ước ban đầu 12–18 REQ, thực tế **40 REQ**. Nguyên nhân: tầng khám phá mới đếm được biểu mẫu đăng nhập, chưa tính nhánh Quên mật khẩu, cookie ghi nhớ đăng nhập, bảo vệ route và tầng giao thức. **Ước REQ của các module còn lại nhiều khả năng cũng thấp hơn thực tế** — dùng con số ở mục 3 như mức sàn, không phải mức trần | `/generate-requirements-from-website LOGIN` |
 
 ### Nghi vấn đã được ảnh evidence giải quyết
 
