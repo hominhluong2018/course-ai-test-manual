@@ -37,7 +37,7 @@ Tổng: **28 module** · đã có tài liệu: **1** · còn trắng: **27**
 
 | # | Module — tên trên website (tiếng Việt) | Prefix | Nền tảng | Trạng thái recon | Mức phủ tài liệu | Tài liệu | REQ đã dùng | Mã kế tiếp | AMB treo | Cập nhật |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 01 | **Login** (Đăng nhập & Phiên làm việc) | `LOGIN` | Web ✅ | ✅ Đã có tài liệu | ⬜ Trắng | [requirements_login.md](login/requirements_login.md) | 01 → 40 | `REQ-LOGIN-41` | AMB-LOGIN-01, 02, 03, 04, 09 | 20-09-2026 |
+| 01 | **Login** (Đăng nhập & Phiên làm việc) | `LOGIN` | Web ✅ | ✅ Đã có tài liệu | ⬜ Trắng | [requirements_login.md](login/requirements_login.md) | 01 → 43 | `REQ-LOGIN-44` | — *(12/12 đã chốt ✅)* | 21-09-2026 |
 | 02 | **Customers** (Khách hàng) | `CUST` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CUST-01` | — | 19-09-2026 |
 | 03 | **Contacts** (Người liên hệ của khách hàng) | `CTC` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CTC-01` | — | 19-09-2026 |
 | 04 | **Leads** (Khách hàng tiềm năng) | `LEAD` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-LEAD-01` | — | 19-09-2026 |
@@ -135,11 +135,15 @@ Bảng được điền dần khi từng module chạy xong `/generate-requireme
 
 | Module | 🟢 Rõ ràng | 🟡 Cần làm rõ | 🔴 Deprecated | ⚪ Chưa implement | Tổng |
 |---|---|---|---|---|---|
-| **Login** (`LOGIN`) | 39 | — | — | 1 | **40** |
+| **Login** (`LOGIN`) | 30 | 9 | — | 4 | **43** |
 | *(27 module còn lại)* | — | — | — | — | 0 |
-| **Toàn hệ thống** | **39** | **—** | **—** | **1** | **40** |
+| **Toàn hệ thống** | **30** | **9** | **—** | **4** | **43** |
 
-REQ ⚪ duy nhất là `REQ-LOGIN-34` (gửi yêu cầu đặt lại mật khẩu cho email có thật) — chưa kiểm chứng vì thao tác đó **gửi email thật ra ngoài**. Xem `AMB-LOGIN-10`.
+**9 REQ 🟡** của `LOGIN` đều do đợt chốt ambiguity ngày 21-09-2026 (`LOGIN-AMB-RESOLVE-001`) — xem [Impact Report](login/impact/impact_LOGIN-AMB-RESOLVE-001.md).
+
+> ⚠️ **Ba trong số đó mô tả hành vi ĐÚNG, không phải hành vi đang chạy:** `REQ-LOGIN-30`, `REQ-LOGIN-31` (thông báo màn hình Quên mật khẩu) và `REQ-LOGIN-38` (`autologin` phải `HttpOnly`). Build hiện tại **vi phạm cả ba** → cần raise bug; TC viết theo chúng sẽ FAIL thật. Xem `RISK-LOGIN-07`.
+
+**4 REQ ⚪** chưa kiểm chứng được: `REQ-LOGIN-34` (gửi email thật ra ngoài) · `REQ-LOGIN-41` (chưa đo được thời hạn phiên) · `REQ-LOGIN-42` (cần môi trường production) · `REQ-LOGIN-43` (chỉ có một tài khoản).
 
 ---
 
@@ -149,12 +153,11 @@ REQ ⚪ duy nhất là `REQ-LOGIN-34` (gửi yêu cầu đặt lại mật khẩ
 |---|---|---|---|
 | `AMB-SYS-01` | Tài khoản trong `.env` không có quyền vào vùng Setup (`/admin/staff` → `/admin/access_denied`). Toàn bộ Vai trò · Phân quyền · Cấu hình · Danh mục hệ thống **chưa khảo sát được**, và ma trận phân quyền của **mọi** module sẽ chỉ ở mức suy diễn `⚠️` | Chặn 28/28 module ở mục Ma trận Phân quyền | PO / Quản trị hệ thống — xin tài khoản Super Admin |
 | `AMB-SYS-02` | Hệ thống có những vai trò (role) nào? Không đọc được vì màn hình quản lý vai trò bị chặn | Chặn việc lập ma trận phân quyền cấp hệ thống | PO |
-| `AMB-SYS-03` | Cổng Khách hàng/Người dùng nằm ở URL nào, tài khoản nào? Người dùng đã xác nhận có nhưng chưa cung cấp | Chưa lập được bản đồ mặt thứ hai của hệ thống | Người dùng |
-| `AMB-LOGIN-01` | Hệ thống có khoá tài khoản sau N lần đăng nhập sai không? Chỉ kiểm được trên email không tồn tại (6 lần không bị chặn); không dám thử trên tài khoản thật vì đó là tài khoản **duy nhất** | `STORY-LOGIN-04` đang `BLOCKED` | Dev / PO — và cần **tài khoản phụ** |
-| `AMB-LOGIN-02` | Màn hình Quên mật khẩu trả `Email not found` (lộ email nào chưa đăng ký), trong khi trang đăng nhập cố tình **không** lộ. Cố ý hay sơ suất? | Lỗ hổng dò danh tính nếu là sơ suất | PO / Dev |
-| `AMB-LOGIN-03` | Vì sao cookie `autologin` đặt `HttpOnly = false`, trong khi cookie này **một mình đủ để vào hệ thống** và sống ~62 ngày? | XSS ở bất kỳ module nào cũng lấy được token đăng nhập dài ngày | Dev |
-| `AMB-LOGIN-04` | Vì sao không ép HTTPS và không đặt header HSTS? | Trang đăng nhập phục vụ được qua kênh không mã hoá | Dev / Quản trị hạ tầng |
-| `AMB-LOGIN-09` | Hệ thống có những vai trò nào, mỗi vai trò đăng nhập có khác biệt gì? | 10/20 ô ma trận phân quyền của `LOGIN` là `❔` | PO — hệ quả của `AMB-SYS-01` |
+| `AMB-SYS-03` | Cổng Khách hàng/Người dùng nằm ở URL nào, tài khoản nào? Người dùng đã xác nhận có nhưng chưa cung cấp | Chưa lập được bản đồ mặt thứ hai của hệ thống. `AMB-LOGIN-11` đã chốt đây là **hệ thống xác thực tách biệt**, thuộc module `CTC` | Người dùng |
+
+> ✅ **Module `LOGIN` không còn ambiguity treo** — 12/12 đã chốt ngày 21-09-2026. Năm mã `AMB-LOGIN-01, 02, 03, 04, 09` từng nằm ở bảng này đã được gỡ; kết luận lưu ở [tài liệu module mục 8](login/requirements_login.md).
+>
+> ⚠️ `AMB-SYS-01` **vẫn chặn** việc nâng 10 ô ma trận phân quyền của `LOGIN` từ `⚠️✅` suy diễn lên `✅` đã kiểm chứng.
 
 ---
 
@@ -207,3 +210,5 @@ docs/
 | 19-09-2026 | **Tách `Contacts` khỏi `CUST` và `Payments` khỏi `INV`** theo yêu cầu người dùng. Cấp 2 prefix mới **`CTC`** · **`PAY`** → **28 module / 23 tệp**. Đánh số lại tệp module theo thứ tự khảo sát; đổi tên 2 ảnh evidence theo prefix mới. Ước REQ: `CUST` 85–110 → 55–70, `INV` 70–90 → 50–65. **Sửa lại tổng ước lượng toàn hệ thống thành ~706–942 REQ** — các con số ghi trước đó trong ngày là cộng nhẩm sai | Người dùng chốt |
 | 20-09-2026 | Phát hành tài liệu requirements module **`LOGIN`** — 40 REQ, 12 AMB, 6 RISK, 9 Story, 18 ảnh evidence. Cập nhật dòng `LOGIN`: `Nền tảng` → Web ✅, `Trạng thái recon` → ✅, `REQ đã dùng` 01 → 40, `Mã kế tiếp` `REQ-LOGIN-41`, `AMB treo` 5 mã 🔴. Bổ sung bảng trạng thái REQ (mục 2) và 5 ambiguity 🔴 (mục 3) | `/generate-requirements-from-website LOGIN` |
 | 20-09-2026 | **Đối chiếu danh mục ↔ thư mục thực tế:** glob `docs/requirements/*/requirements_*.md` ra đúng 1 module (`login`), khớp với dòng duy nhất đang ở trạng thái ✅. Không phát hiện module thiếu dòng, dòng mồ côi, lệch `Mã kế tiếp`, hay trùng prefix | Đối chiếu bắt buộc của workflow |
+| 21-09-2026 | **Chốt toàn bộ 12 ambiguity của `LOGIN`** theo Assumption tạm (`LOGIN-AMB-RESOLVE-001`). Sinh 3 REQ mới (41→43, đều ⚪), sửa 9 REQ sang 🟡, thêm `RISK-LOGIN-07`. Gỡ 5 mã `AMB-LOGIN` khỏi mục 3. Cập nhật dòng `LOGIN`: `REQ đã dùng` 01 → 43, `Mã kế tiếp` `REQ-LOGIN-44`, `AMB treo` → `—`. ⚠️ Ba REQ (30, 31, 38) nay **trái với build hiện tại** — cần raise bug | `/update-requirements-from-ticket` — delta mode |
+| 21-09-2026 | **Gộp tài liệu `LOGIN` về một tệp.** `login/web/requirements_login_web.md` nhập vào `login/requirements_login.md`; gỡ thư mục `login/web/`, chuyển ảnh sang `login/evidence/`. Module chỉ có một nền tảng nên không cần tầng `web/`. **Không** REQ/AMB/RISK/Story nào bị thêm, sửa nội dung hay đánh lại mã — giữ nguyên 40 REQ · 12 AMB · 6 RISK · 9 Story · 18 ảnh. Liên kết trong danh mục không đổi | Người dùng yêu cầu |
