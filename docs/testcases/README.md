@@ -8,7 +8,7 @@
 | Tiền tố TC ID | `CRM_` → `CRM_<MODULE>_TC_<3 số>` |
 | Nguồn requirements | [`docs/requirements/README.md`](../requirements/README.md) |
 | Môi trường | ⚠️ **Dùng chung** — TC phải chỉ đọc hoặc hoàn tác được; cấm thao tác phá huỷ dữ liệu nghiệp vụ |
-| Ngày cập nhật | 19-09-2026 |
+| Ngày cập nhật | 28-09-2026 |
 
 ---
 
@@ -16,7 +16,7 @@
 
 | Module | Prefix TC ID | Dải đã dùng | Mã kế tiếp | Số TC | Nền tảng | Độ hạt | REQ bao phủ | Tài liệu | Cập nhật |
 |---|---|---|---|---|---|---|---|---|---|
-| Đăng nhập / Xác thực | `CRM_LOGIN_TC_` | `001` → `052` | `053` | 52 | Web 52 | GỘP | 40/40 REQ trong phạm vi | [TEST_CASES_LOGIN_SUMMARY.md](login/TEST_CASES_LOGIN_SUMMARY.md) | 21-09-2026 |
+| Đăng nhập / Xác thực | `CRM_LOGIN_TC_` | `001` → `065` | `066` | 65 | Web 65 | GỘP | 51/51 REQ trong phạm vi | [TEST_CASES_LOGIN_SUMMARY.md](login/TEST_CASES_LOGIN_SUMMARY.md) | 28-09-2026 |
 | Khách hàng | `CRM_CUST_TC_` | `001` → `129` | `130` | 129 | Web 129 | GỘP | 84/84 REQ | [TEST_CASES_CUSTOMERS_SUMMARY.md](customers/TEST_CASES_CUSTOMERS_SUMMARY.md) | 19-09-2026 |
 
 ### Namespace hệ thống khác
@@ -30,7 +30,7 @@
 
 | Module | Độ hạt | Vì sao | Bản đối chiếu |
 |---|---|---|---|
-| `LOGIN` | **GỘP** | ⚠️ **Sinh lại toàn bộ 21-09-2026** — bộ 51 TC cũ mất khỏi đĩa, không khôi phục được ở trạng thái mới nhất. Bộ hiện tại 52 TC · **61 biến thể** · 2 part, TC ID đánh lại từ `001`. **TC ID KHÔNG tương thích với bug và execution report cũ** — xem mục *Cảnh báo truy vết* trong [TEST_CASES_LOGIN_SUMMARY.md](login/TEST_CASES_LOGIN_SUMMARY.md) | Bản 41 TC (20-08-2026): `git show 9631f42:docs/testcases/login/test_cases_login.md`. Bản 51 TC: **không còn** |
+| `LOGIN` | **GỘP** | ⚠️ **Sinh lại toàn bộ 21-09-2026** — bộ 51 TC cũ mất khỏi đĩa, không khôi phục được ở trạng thái mới nhất. Bộ hiện tại 65 TC · **72 biến thể** · 3 part (52 TC sinh 21-09-2026 + 13 TC khoá tài khoản bổ sung 28-09-2026 ở part riêng), TC ID đánh lại từ `001`. **TC ID KHÔNG tương thích với bug và execution report cũ** — xem mục *Cảnh báo truy vết* trong [TEST_CASES_LOGIN_SUMMARY.md](login/TEST_CASES_LOGIN_SUMMARY.md) | Bản 41 TC (20-08-2026): `git show 9631f42:docs/testcases/login/test_cases_login.md`. Bản 51 TC: **không còn** |
 | `CUST` | **GỘP** | Sinh lần đầu ở độ hạt mặc định — 129 TC · **155 biến thể** · 74 mục bảng kiểm, 5 part (vượt ngưỡng 50) | — (chưa có bản TÁCH) |
 
 > Chọn độ hạt ở **lượt sinh đầu tiên**: `/generate-testcases-from-requirements <đường dẫn> [GỘP|TÁCH]`. Mặc định `GỘP`. Đổi độ hạt sau khi đã có automation / execution report / RTM trỏ vào là **cấm** — xem mục **Độ Hạt Test Case** trong skill.
@@ -41,7 +41,7 @@
 
 | Module | REQ có tài liệu | REQ trong phạm vi TC | REQ đã có ≥1 TC | Độ phủ | Ghi chú |
 |---|---|---|---|---|---|
-| `LOGIN` | 44 | 40 | 40 | **100%** | 4 REQ ngoài phạm vi theo quyết định PO 18-08-2026: `27`, `34`, `35`, `40` |
+| `LOGIN` | 55 | 51 | 51 | **100%** | 4 REQ ngoài phạm vi theo quyết định PO 18-08-2026: `27`, `34`, `35`, `40` · 12 REQ khoá tài khoản (`41`, `45` → `55`, ⚪ chưa deploy) có TC `@NotDeployed` — chấm `BLOCKED` tới khi deploy |
 | `CUST` | 84 | 84 | 84 | **100%** | 2 REQ ⚪ (`81`, `82`) có TC `@AssumptionBased` · 2 REQ 🟡 (`42`, `43`) có TC thiết kế để FAIL |
 | `PRJ` | 104 | — | 0 | 0% | Chưa sinh TC |
 
@@ -112,6 +112,8 @@ Xem nhanh bằng web viewer: `scripts/execution-viewer/bundle.html` (mở offlin
 
 | Ngày | Thay đổi |
 |---|---|
+| 28-09-2026 | **`LOGIN` BỔ SUNG theo ticket `CRM-LOGIN-101`** — `/generate-testcases-from-requirements` chế độ BỔ SUNG, độ hạt GỘP: thêm **13 TC** `CRM_LOGIN_TC_053` → `065` (11 biến thể / mục bảng kiểm) cho 11 REQ khoá tài khoản `REQ-LOGIN-45` → `55` — độ phủ `LOGIN` **51/51**. Tất cả `@NotDeployed`; 4 TC `@NeedsVerify`. Không chạm TC cũ. Tổng 65 TC · 72 biến thể |
+| 28-09-2026 | **`LOGIN` DELTA theo ticket `CRM-LOGIN-101`** (khoá tài khoản sau 5 lần sai) — sửa tại chỗ **8 TC** (`TC_014`, `022`, `023`, `026`, `027`, `028`, `042`, `044`), TC ID giữ nguyên, không thêm, không Deprecated — vẫn **52 TC**. `TC_026` viết lại theo REQ đảo ngược (`@NotDeployed`). Mọi TC nhập sai chuyển sang tài khoản `Project Manager` + bước Dọn: số lần tiêu hao bộ đếm tài khoản Admin **21 → 0**. Độ phủ `LOGIN` 40/51 — 11 REQ mới chờ lượt BỔ SUNG. Delta TC List: [login/impact/delta_tc_CRM-LOGIN-101.md](login/impact/delta_tc_CRM-LOGIN-101.md) |
 | 21-09-2026 | 🚨 **`LOGIN` sinh lại toàn bộ bằng `/generate-testcases-from-requirements` Mode QUICK, độ hạt GỘP** — **52 TC · 61 biến thể**, 2 part ở `login/web/parts/`, chiếm dải `CRM_LOGIN_TC_001` → `052`. Rủi ro `Cao` → độ sâu **Đầy đủ**. Phủ 40/40 REQ trong phạm vi.<br>**Lý do sinh lại:** thư mục `docs/testcases/login/` **không còn trên đĩa** và bản mới nhất **không có trong git** (bản gần nhất tìm lại được là 41 TC ở commit `9631f42`; dải `042`→`051` đã mất). Người dùng chọn sinh mới hoàn toàn thay vì khôi phục.<br>⚠️ **Hệ quả — TC ID đánh lại từ `001`, không tương thích ngược:** 6 bug ở `docs/bugs/login/web/` và 2 execution report ở `docs/executions/login/web/` đang trỏ vào dải TC cũ → **trỏ sai**. Bảng ánh xạ 3 bug đã đối chiếu được và việc cần làm nằm ở mục *Cảnh báo truy vết* trong [TEST_CASES_LOGIN_SUMMARY.md](login/TEST_CASES_LOGIN_SUMMARY.md).<br>3 TC thiết kế để FAIL (`TC_028`, `TC_029`, `TC_045`) · 2 TC `@NeedsVerify` (`TC_051`, `TC_052`) · 2 TC `@PersonalOnly` chạy trên 1 giờ (`TC_049`, `TC_050`) |
 | 20-09-2026 | `_book-api/` · `AUTH` thêm **47 TC API** (`BK_AUTH_TC_059` → `105`) — module phủ 86/86 REQ |
 | 20-09-2026 | Namespace **`_book-api/`** có bộ TC đầu tiên: module `AUTH` · Mobile (Android) · 58 TC · 95 biến thể (`BK_AUTH_TC_001` → `058`). Chi tiết ở danh mục riêng [`_book-api/README.md`](_book-api/README.md) |
