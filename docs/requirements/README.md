@@ -1,187 +1,154 @@
-# Danh Mục Requirements Toàn Hệ Thống
+# Danh mục Requirements — Perfex CRM (Anh Tester Demo)
 
-> **Đây là điểm vào cấp hệ thống.** Mọi workflow đụng tới `docs/` đọc file này **đầu tiên** — để biết module nào đã có tài liệu, prefix nào đã bị chiếm, mã REQ kế tiếp bắt đầu từ đâu.
-
-## Thuộc tính dự án
+> **Điểm vào cấp hệ thống.** Mọi workflow đụng tới `docs/` đọc file này **trước tiên**: module nào đã có tài liệu · **prefix nào đã bị chiếm** · mã REQ kế tiếp · ambiguity 🔴 còn treo.
+>
+> Bản đồ hệ thống chi tiết: [`_discovery/system_map.md`](_discovery/system_map.md)
 
 | Mục | Giá trị |
 |---|---|
-| **Hệ thống** | Perfex CRM — bản demo đào tạo của Anh Tester |
-| **Phiên bản ứng dụng** | `3.1.6` (đọc từ query string `?v=` của asset) |
-| **Kiến trúc** | Ứng dụng PHP render phía máy chủ (**không** phải SPA). Không có tầng REST API công khai — bảng dữ liệu nạp bằng `POST /admin/<module>/table` trả JSON cho DataTables |
-| **Mặt đã khám phá** | **Web** — khu vực quản trị `/admin` |
-| **Mặt chưa khám phá** | **Web — cổng Khách hàng/Người dùng** (URL khác, người dùng sẽ cung cấp sau) · Mobile · API |
-| **Tiền tố TC ID** | **`CRM_`** — chốt 19-09-2026. Dạng đầy đủ: `CRM_<MODULE>_TC_<3 số>`, ví dụ `CRM_CUST_TC_001` |
-| **Quy ước mã REQ** | `REQ-<MODULE>-<số>` — hệ thống mặc định của repo, **không** dùng namespace |
-| **Môi trường dùng chung** | **KHÔNG** — chốt 19-09-2026. Được phép tạo/sửa/xoá dữ liệu khi khảo sát và chạy test |
-| **URL · tài khoản** | Lưu ở `.env` (đã `.gitignore`). **KHÔNG** ghi vào bất kỳ tệp nào trong `docs/` |
-| **Năng lực kiểm thử của QA** | Chốt 19-09-2026 — dùng cho nhánh Vòng 3 của **mọi** bộ TC:<br>• DevTools trình duyệt: ✅ có — đã kiểm chứng trong phiên khám phá (đọc được DOM, Network, Console)<br>• Gọi API: ❌ không có quyền — đội Dev xác minh<br>• Truy vấn CSDL: ❌ không có quyền — đội Dev xác minh<br>• Kiểm tầng tích hợp: ❌ không có quyền — đội Dev xác minh<br>• Xem nhật ký hoạt động: ❌ **đã đo** — tài khoản hiện tại bị chặn toàn bộ vùng Setup (`/admin/staff` → `/admin/access_denied`). Cần tài khoản Super Admin, đề nghị PO cấp |
-
-### ⛔ Ràng buộc lớn nhất của dự án — đọc trước khi lập kế hoạch
-
-Tài khoản đang dùng **không phải Super Admin**. Toàn bộ vùng **Setup** không truy cập được:
-
-| Đã thử | Kết quả |
-|---|---|
-| `/admin/staff` | → chuyển hướng `/admin/access_denied` |
-| `/admin/roles` · `/admin/settings` · `/admin/departments` · `/admin/taxes` · `/admin/currencies` · `/admin/goals` · `/admin/tickets/priorities` | → đều bị đẩy về Dashboard |
-| `#setup-menu` trong DOM | Tồn tại nhưng **rỗng hoàn toàn** — máy chủ không render mục nào |
-
-**Hệ quả:** Nhân viên · Vai trò & phân quyền · Cấu hình hệ thống · Danh mục (thuế, tiền tệ, phòng ban, loại hợp đồng) · Mục tiêu · Nhật ký hoạt động — **chưa khảo sát được**, chưa cấp prefix. Ma trận phân quyền của mọi module sẽ ở mức **suy diễn `⚠️`** cho tới khi có tài khoản Super Admin. Xem `AMB-SYS-01`.
+| Hệ thống | Perfex CRM — Anh Tester Demo |
+| Tiền tố TC ID | `CRM_` → `CRM_<MODULE>_TC_<3 số>` |
+| Môi trường dùng chung | **CÓ** — cấm thao tác phá huỷ, phải dọn dữ liệu test sau khi chạy |
+| URL · tài khoản | `.env` (không commit) — **KHÔNG** ghi credentials vào `docs/` |
+| **Vai trò hệ thống** | **3 vai trò**, đã có tài khoản đủ cả 3 (18-08-2026): `Admin` và `Project Manager` đăng nhập ở `/admin/authentication` · `Customer` đăng nhập ở **`/login`** (cổng khách hàng, hệ thống đăng nhập **tách biệt** — không vào được `/admin`) |
+| **Năng lực kiểm thử của QA** | Chốt 11-09-2026 — dùng cho nhánh **Vòng 3** của **mọi** bộ TC:<br>• Gọi API: ❌ không có quyền — **đội Dev** xác minh<br>• Truy vấn CSDL: ❌ không có quyền — **đội Dev** xác minh<br>• Kiểm tầng tích hợp: ❌ không có quyền — **đội Dev** xác minh<br>• Xem nhật ký hoạt động: ❌ **đã đo 11-09-2026** — `Utilities → Activity Log` (`/admin/utilities/activity_log`) trả trang **Từ chối truy cập** với tài khoản `Admin` demo. Cần Super Admin, **đề nghị PO cấp**<br>• DevTools trình duyệt: ✅ có — dùng cho TC gắn `@TechCheck` |
+| Khởi tạo | 14-08-2026 bởi `/discover-system` (Mode UI) |
 
 ---
 
-## 1. Bảng danh mục module
+## 1. Bảng danh mục module (23 module)
 
-Tổng: **28 module** · đã có tài liệu: **1** · còn trắng: **27**
+| Module | Prefix | Trạng thái recon | Mức phủ tài liệu | Tài liệu | REQ đã dùng | Mã kế tiếp | AMB treo | Cập nhật |
+|---|---|---|---|---|---|---|---|---|
+| Đăng nhập / Xác thực | `LOGIN` | ✅ Đã có tài liệu | ⬜ Trắng | [login/REQUIREMENTS_LOGIN_SUMMARY.md](login/REQUIREMENTS_LOGIN_SUMMARY.md) | `REQ-LOGIN-01` → `REQ-LOGIN-55` (55) | `REQ-LOGIN-56` | **0** — ticket CRM-LOGIN-101 đã trả lời hết `AMB-LOGIN-21`→`28` | 28-09-2026 |
+| Khách hàng | `CUST` | ✅ Đã có tài liệu | ⬜ Trắng | [customers/REQUIREMENTS_CUSTOMERS_SUMMARY.md](customers/REQUIREMENTS_CUSTOMERS_SUMMARY.md) | `REQ-CUST-01` → `REQ-CUST-84` (84) | `REQ-CUST-85` | **0** — đã xử lý 14/14 | 19-09-2026 |
+| Liên hệ khách hàng | `CONT` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CONT-01` | — | 14-08-2026 |
+| Khách hàng tiềm năng | `LEAD` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-LEAD-01` | — | 14-08-2026 |
+| Dự án | `PRJ` | ✅ Đã có tài liệu | ⬜ Trắng | [projects/REQUIREMENTS_PROJECTS_SUMMARY.md](projects/REQUIREMENTS_PROJECTS_SUMMARY.md) | `REQ-PRJ-01` → `REQ-PRJ-104` (104) | `REQ-PRJ-105` | 6 🔴 (AMB-PRJ-01→04, 06, 14) · 7 🟡 · 3 🟢 | 14-08-2026 |
+| Công việc | `TASK` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TASK-01` | — | 14-08-2026 |
+| Báo giá sơ bộ (Estimates) | `EST` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-EST-01` | — | 14-08-2026 |
+| Đề xuất (Proposals) | `PROP` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PROP-01` | — | 14-08-2026 |
+| Hoá đơn | `INV` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-INV-01` | — | 14-08-2026 |
+| Thanh toán | `PAY` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PAY-01` | — | 14-08-2026 |
+| Giấy báo có (Credit Notes) | `CN` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CN-01` | — | 14-08-2026 |
+| Đăng ký định kỳ | `SUB` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-SUB-01` | — | 14-08-2026 |
+| Hợp đồng | `CTR` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CTR-01` | — | 14-08-2026 |
+| Chi phí | `EXP` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-EXP-01` | — | 14-08-2026 |
+| Danh mục hàng hoá/dịch vụ | `ITEM` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-ITEM-01` | — | 14-08-2026 |
+| Hỗ trợ (Tickets) | `TICK` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TICK-01` | — | 14-08-2026 |
+| Yêu cầu báo giá | `ESTREQ` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-ESTREQ-01` | — | 14-08-2026 |
+| Cơ sở tri thức | `KB` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-KB-01` | — | 14-08-2026 |
+| Báo cáo | `REP` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-REP-01` | — | 14-08-2026 |
+| Dashboard | `DASH` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-DASH-01` | — | 14-08-2026 |
+| Việc cần làm (To Do) | `TODO` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TODO-01` | — | 14-08-2026 |
+| Nhắc nhở | `REM` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-REM-01` | — | 14-08-2026 |
+| Hồ sơ cá nhân & Chấm công | `PROF` | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PROF-01` | — | 14-08-2026 |
 
-| # | Module — tên trên website (tiếng Việt) | Prefix | Nền tảng | Trạng thái recon | Mức phủ tài liệu | Tài liệu | REQ đã dùng | Mã kế tiếp | AMB treo | Cập nhật |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 01 | **Login** (Đăng nhập & Phiên làm việc) | `LOGIN` | Web ✅ | ✅ Đã có tài liệu | ⬜ Trắng | [requirements_login.md](login/requirements_login.md) | 01 → 43 | `REQ-LOGIN-44` | — *(12/12 đã chốt ✅)* | 21-09-2026 |
-| 02 | **Customers** (Khách hàng) | `CUST` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CUST-01` | — | 19-09-2026 |
-| 03 | **Contacts** (Người liên hệ của khách hàng) | `CTC` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CTC-01` | — | 19-09-2026 |
-| 04 | **Leads** (Khách hàng tiềm năng) | `LEAD` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-LEAD-01` | — | 19-09-2026 |
-| 05 | **Estimate Request** (Yêu cầu báo giá) | `ESTREQ` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-ESTREQ-01` | — | 19-09-2026 |
-| 06 | **Estimates** (Báo giá) | `EST` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-EST-01` | — | 19-09-2026 |
-| 07 | **Proposals** (Đề xuất báo giá) | `PROP` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PROP-01` | — | 19-09-2026 |
-| 08 | **Contracts** (Hợp đồng) | `CTR` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CTR-01` | — | 19-09-2026 |
-| 09 | **Items** (Sản phẩm & Dịch vụ) | `ITEM` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-ITEM-01` | — | 19-09-2026 |
-| 10 | **Invoices** (Hoá đơn) | `INV` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-INV-01` | — | 19-09-2026 |
-| 11 | **Payments** (Thanh toán) | `PAY` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PAY-01` | — | 19-09-2026 |
-| 12 | **Credit Notes** (Giấy báo có) | `CN` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CN-01` | — | 19-09-2026 |
-| 13 | **Subscriptions** (Đăng ký định kỳ) | `SUB` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-SUB-01` | — | 19-09-2026 |
-| 14 | **Expenses** (Chi phí) | `EXP` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-EXP-01` | — | 19-09-2026 |
-| 15 | **Projects** (Dự án) | `PRJ` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PRJ-01` | — | 19-09-2026 |
-| 16 | **Tasks** (Công việc) | `TASK` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TASK-01` | — | 19-09-2026 |
-| 17 | **Timesheets** (Chấm công) | `TIME` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TIME-01` | — | 19-09-2026 |
-| 18 | **Support** (Hỗ trợ / Ticket) | `TICKET` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TICKET-01` | — | 19-09-2026 |
-| 19 | **Knowledge Base** (Cơ sở tri thức) | `KB` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-KB-01` | — | 19-09-2026 |
-| 20 | **Calendar** (Lịch) | `CAL` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-CAL-01` | — | 19-09-2026 |
-| 21 | **Media / Bulk PDF Export** (Tệp & Xuất PDF hàng loạt) | `UTIL` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-UTIL-01` | — | 19-09-2026 |
-| 22 | **Reports** (Báo cáo) | `RPT` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-RPT-01` | — | 19-09-2026 |
-| 23 | **Dashboard** (Bảng điều khiển) | `DASH` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-DASH-01` | — | 19-09-2026 |
-| 24 | **Search** (Tìm kiếm toàn cục) | `SEARCH` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-SEARCH-01` | — | 19-09-2026 |
-| 25 | **To Do** (Việc cần làm) | `TODO` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-TODO-01` | — | 19-09-2026 |
-| 26 | **Reminders** (Nhắc nhở) | `REM` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-REM-01` | — | 19-09-2026 |
-| 27 | **Announcements** (Thông báo nội bộ) | `ANN` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-ANN-01` | — | 19-09-2026 |
-| 28 | **My Profile** (Hồ sơ cá nhân & Ngôn ngữ) | `PROFILE` | Web ⬜ | ⬜ Chưa khảo sát | ⬜ Trắng | — | — | `REQ-PROFILE-01` | — | 19-09-2026 |
+**Bảng mã trạng thái recon:** ⬜ Chưa khảo sát · 🟨 Đang khảo sát · ✅ Đã có tài liệu · ⏸️ Hoãn · ⚪ Chưa implement
+**Bảng mã mức phủ tài liệu:** 🟩 Đầy đủ · 🟨 Một phần · ⬜ Trắng · ⚠️ Nghi lỗi thời
 
-### Quy ước đặt tên module
+### Prefix đã chiếm (module mới PHẢI chọn prefix ngoài danh sách này)
 
-**Tên module luôn ghi theo dạng `Tên trên website (tiếng Việt)`.** Tên tiếng Anh lấy **nguyên văn nhãn hiển thị trên Perfex CRM** để đối chiếu nhanh giữa tài liệu và màn hình thật; phần tiếng Việt trong ngoặc chỉ để đọc hiểu, **không** dùng làm khoá tra cứu.
+```
+LOGIN · CUST · CONT · LEAD · PRJ · TASK · EST · PROP · INV · PAY · CN · SUB
+CTR · EXP · ITEM · TICK · ESTREQ · KB · REP · DASH · TODO · REM · PROF
+```
 
-| Prefix | Tên trên website | Lấy từ đâu trên UI |
+### Vùng chưa cấp prefix (ngoài phạm vi đợt 14-08-2026)
+
+| Vùng | Lý do | Muốn đưa vào thì làm gì |
 |---|---|---|
-| `LOGIN` | **Login** | Tiêu đề trang đăng nhập. `Authentication` chỉ là tên route |
-| `CUST` | **Customers** | Sidebar |
-| `CTC` | **Contacts** | Nút `Contacts` trên thanh công cụ Customers + tab `Contacts` trong hồ sơ khách hàng |
-| `LEAD` | **Leads** | Sidebar |
-| `ESTREQ` | **Estimate Request** | Sidebar |
-| `EST` | **Estimates** | Sidebar › Sales |
-| `PROP` | **Proposals** | Sidebar › Sales |
-| `CTR` | **Contracts** | Sidebar |
-| `ITEM` | **Items** | Sidebar › Sales. Tiêu đề trang: `Invoice Items` |
-| `INV` | **Invoices** | Sidebar › Sales. Gồm `Recurring Invoices` |
-| `PAY` | **Payments** | Sidebar › Sales |
-| `CN` | **Credit Notes** | Sidebar › Sales |
-| `SUB` | **Subscriptions** | Sidebar |
-| `EXP` | **Expenses** | Sidebar |
-| `PRJ` | **Projects** | Sidebar |
-| `TASK` | **Tasks** | Sidebar |
-| `TIME` | **Timesheets** | Menu hồ sơ › `My Timesheets`; tiêu đề trang: `Today` |
-| `TICKET` | **Support** | Sidebar. Tiêu đề trang: `Support Tickets` |
-| `KB` | **Knowledge Base** | Sidebar |
-| `CAL` | **Calendar** | Sidebar › Utilities |
-| `UTIL` | **Media / Bulk PDF Export** | Sidebar › Utilities. Tiêu đề trang của Media: `Files` |
-| `RPT` | **Reports** | Sidebar |
-| `DASH` | **Dashboard** | Sidebar |
-| `SEARCH` | **Search** | Widget không có nhãn — tên lấy từ `placeholder="Search..."` |
-| `TODO` | **To Do** | Biểu tượng `Todo items`; tiêu đề trang: `My To Do Items` |
-| `REM` | **Reminders** | Không có trong sidebar — tiêu đề trang |
-| `ANN` | **Announcements** | Không có trong sidebar — tiêu đề trang |
-| `PROFILE` | **My Profile** | Menu hồ sơ. Tiêu đề trang: `Profile` |
-
-📌 **Tên tệp trong `_discovery/modules/` cũng dùng slug tiếng Anh, KHÔNG kèm tiếng Việt** — `module_02_customers.md`, `module_10_invoices.md`. Người dùng chốt ngày 19-09-2026, để nhìn tên tệp là nhận ra ngay module trên website.
-
-> ⚠️ **Đây là chỗ cố ý lệch với CLAUDE.md mục 6.5**, vốn quy định `<slug>` là *tiếng Việt không dấu*. Lệch có chủ đích, người dùng đã chốt. Mọi đợt khám phá sau của dự án này **phải theo slug tiếng Anh** cho nhất quán — đừng quay về tiếng Việt chỉ vì CLAUDE.md ghi thế.
-
-Tệp gộp nhiều module thì slug **nêu đủ nhóm**, không giấu module nào:
-
-| Tệp | Module bên trong |
-|---|---|
-| `module_10_invoices.md` | `INV` — gồm Recurring Invoices |
-| `module_16_tasks_timesheets.md` | `TASK` · `TIME` |
-| `module_19_calendar_media_bulk_pdf.md` | `CAL` · `UTIL` |
-| `module_21_dashboard_search.md` | `DASH` · `SEARCH` |
-| `module_22_todo_reminders_announcements.md` | `TODO` · `REM` · `ANN` |
-
-### Danh sách prefix đã chiếm
-
-```
-ANN · CAL · CN · CTC · CTR · CUST · DASH · EST · ESTREQ · EXP · INV · ITEM
-KB · LEAD · LOGIN · PAY · PRJ · PROFILE · PROP · REM · RPT · SEARCH · SUB
-TASK · TICKET · TIME · TODO · UTIL
-```
-
-`SYS` là prefix **dành riêng** cho AMB/RISK cấp hệ thống — không cấp cho module.
-
-**Module mới phải chọn prefix chưa có trong danh sách trên.**
+| Quản trị hệ thống (Setup: Settings · Staff · Roles · Departments · Taxes · Currencies · Payment Modes · Custom Fields · Email Templates) | 403 với tài khoản hiện tại | Xin account quyền cao hơn → chạy `/discover-system` **Mode ADD** |
+| Calendar · Media · Bulk PDF Export | User chốt loại khỏi phạm vi | Chạy `/discover-system` **Mode ADD** khi cần |
+| Cổng khách hàng (front-end ngoài `/admin`) | Chưa chốt phạm vi | Chốt phạm vi rồi chạy Mode ADD |
 
 ---
 
 ## 2. Trạng thái REQ toàn hệ thống
 
-Bảng được điền dần khi từng module chạy xong `/generate-requirements-from-website`.
+Đã recon **3/23 module**. Ước lượng khi recon xong toàn hệ thống: **~700–950 REQ** (nâng từ ~560–780 — cả ba module đã recon đều vượt xa ước lượng của tầng khám phá).
 
-| Module | 🟢 Rõ ràng | 🟡 Cần làm rõ | 🔴 Deprecated | ⚪ Chưa implement | Tổng |
-|---|---|---|---|---|---|
-| **Login** (`LOGIN`) | 30 | 9 | — | 4 | **43** |
-| *(27 module còn lại)* | — | — | — | — | 0 |
-| **Toàn hệ thống** | **30** | **9** | **—** | **4** | **43** |
+| Trạng thái | Số lượng | Chi tiết |
+|---|---|---|
+| 🟢 Active | 197 | `LOGIN` 24 · `CUST` 73 · `PRJ` 100 |
+| 🟡 Changed | 26 | `LOGIN` 17 — 15 REQ sửa trong hai đợt ngày 18-08-2026 (rà soát chất lượng + chốt quyết định PO) · `REQ-LOGIN-42` sửa 19-09-2026 (`AMB-LOGIN-19` ✅) · `REQ-LOGIN-15` sửa 28-09-2026 (thu hẹp phạm vi chống lộ email — `AMB-LOGIN-24` ✅). Trong đó **`REQ-LOGIN-16` và `REQ-LOGIN-25` ghi kỳ vọng đúng mà hệ thống chưa đạt** → TC sẽ FAIL, phải mở bug · `CUST` 9 — `42`, `43`, `53`, `73`, `79` sửa 19-09-2026 (`PO-2026-09-19`) · `15`, `17`, `22`, `70` sửa 19-09-2026 (recon đối chiếu evidence). Trong đó **`REQ-CUST-42` và `REQ-CUST-43` ghi kỳ vọng đúng mà hệ thống chưa đạt** → TC sẽ FAIL, phải mở bug |
+| 🔴 Deprecated | 0 | — |
+| ⚪ Chưa implement | 20 | `LOGIN` 14 — `REQ-LOGIN-27` và `REQ-LOGIN-40` **ra ngoài phạm vi kiểm thử** theo quyết định PO 18-08-2026 · `REQ-LOGIN-41`, `45` → `55` — khoá tài khoản (ticket `CRM-LOGIN-101`) **chưa deploy**, TC viết trước để `skip` · `CUST` 2 — `REQ-CUST-81` (Inactive bị loại khỏi mọi dropdown, chưa rà 11 module) và `REQ-CUST-82` (chặn xoá khách hàng có dữ liệu liên quan, cần môi trường riêng) · `PRJ` 4 — `REQ-PRJ-89`, `91`, `94` (CRUD mốc tiến độ / tệp / thảo luận, không chạy trên môi trường dùng chung) và `REQ-PRJ-104` (nội dung tệp `Export project data`, không tải tệp về) |
+| **Tổng** | **243** | |
 
-**9 REQ 🟡** của `LOGIN` đều do đợt chốt ambiguity ngày 21-09-2026 (`LOGIN-AMB-RESOLVE-001`) — xem [Impact Report](login/impact/impact_LOGIN-AMB-RESOLVE-001.md).
-
-> ⚠️ **Ba trong số đó mô tả hành vi ĐÚNG, không phải hành vi đang chạy:** `REQ-LOGIN-30`, `REQ-LOGIN-31` (thông báo màn hình Quên mật khẩu) và `REQ-LOGIN-38` (`autologin` phải `HttpOnly`). Build hiện tại **vi phạm cả ba** → cần raise bug; TC viết theo chúng sẽ FAIL thật. Xem `RISK-LOGIN-07`.
-
-**4 REQ ⚪** chưa kiểm chứng được: `REQ-LOGIN-34` (gửi email thật ra ngoài) · `REQ-LOGIN-41` (chưa đo được thời hạn phiên) · `REQ-LOGIN-42` (cần môi trường production) · `REQ-LOGIN-43` (chỉ có một tài khoản).
+> ✅ **REQ 🟡 của `LOGIN` đã có test case** trong [`testcases/login/`](../testcases/login/TEST_CASES_LOGIN_SUMMARY.md), viết theo bản đã sửa. Khi REQ đổi tiếp, cập nhật TC bằng `/update-testcases-from-impact` — **không** dùng bản trước 18-08-2026.
+>
+> ⚠️ **`LOGIN` — khoá tài khoản (`CRM-LOGIN-101`) chưa deploy** — 12 REQ ⚪ viết TC trước, để `skip`. Không Story nào BLOCKED. Phạm vi viết TC **51/55 REQ** (4 REQ ra ngoài phạm vi theo quyết định PO 18-08-2026). Impact Report: [login/impact/impact_CRM-LOGIN-101.md](login/impact/impact_CRM-LOGIN-101.md)
 
 ---
 
 ## 3. Ambiguity 🔴 High còn treo
 
-| Mã | Nội dung | Ảnh hưởng | Cần ai trả lời |
-|---|---|---|---|
-| `AMB-SYS-01` | Tài khoản trong `.env` không có quyền vào vùng Setup (`/admin/staff` → `/admin/access_denied`). Toàn bộ Vai trò · Phân quyền · Cấu hình · Danh mục hệ thống **chưa khảo sát được**, và ma trận phân quyền của **mọi** module sẽ chỉ ở mức suy diễn `⚠️` | Chặn 28/28 module ở mục Ma trận Phân quyền | PO / Quản trị hệ thống — xin tài khoản Super Admin |
-| `AMB-SYS-02` | Hệ thống có những vai trò (role) nào? Không đọc được vì màn hình quản lý vai trò bị chặn | Chặn việc lập ma trận phân quyền cấp hệ thống | PO |
-| `AMB-SYS-03` | Cổng Khách hàng/Người dùng nằm ở URL nào, tài khoản nào? Người dùng đã xác nhận có nhưng chưa cung cấp | Chưa lập được bản đồ mặt thứ hai của hệ thống. `AMB-LOGIN-11` đã chốt đây là **hệ thống xác thực tách biệt**, thuộc module `CTC` | Người dùng |
+### 3.1. Ambiguity 🔴 High theo module
 
-> ✅ **Module `LOGIN` không còn ambiguity treo** — 12/12 đã chốt ngày 21-09-2026. Năm mã `AMB-LOGIN-01, 02, 03, 04, 09` từng nằm ở bảng này đã được gỡ; kết luận lưu ở [tài liệu module mục 8](login/requirements_login.md).
->
-> ⚠️ `AMB-SYS-01` **vẫn chặn** việc nâng 10 ô ma trận phân quyền của `LOGIN` từ `⚠️✅` suy diễn lên `✅` đã kiểm chứng.
+| Mã | Module | Câu hỏi | Chặn cái gì |
+|---|---|---|---|
+| ~~AMB-LOGIN-01~~ | `LOGIN` | ✅ **ĐÃ GỠ 18-08-2026** — 3 vai trò `Admin` · `Project Manager` · `Customer`, **đã được cấp đủ tài khoản** | Đây là nút thắt lớn nhất của toàn dự án. Nay **mọi module đều dựng được ma trận phân quyền thật** |
+| [AMB-PRJ-01](projects/REQUIREMENTS_PROJECTS_SUMMARY.md#71-ambiguities) | `PRJ` | Xin tài khoản vai trò `Project Manager` và các vai trò khác để kiểm chứng 28 ô bỏ trống trong ma trận phân quyền | Ma trận phân quyền của `PRJ` — BLOCKED hoàn toàn |
+| [AMB-PRJ-02](projects/REQUIREMENTS_PROJECTS_SUMMARY.md#71-ambiguities) | `PRJ` | Bảng tổng quan đếm **67** dự án `In Progress` nhưng lọc ra đúng **60** dòng (lệch 7); 4 trạng thái còn lại khớp chính xác. Số nào đúng? | STORY-PRJ-01 · Dashboard cũng hiển thị `67 / 125` theo nguồn sai này |
+| [AMB-PRJ-03](projects/REQUIREMENTS_PROJECTS_SUMMARY.md#71-ambiguities) | `PRJ` | Xoá dự án **thành công** nhưng chuyển tới `/admin/not_found` kèm `Something went wrong. Try again` — không có thông báo thành công | STORY-PRJ-10 · test thủ công sẽ chấm FAIL nhầm |
+| [AMB-PRJ-04](projects/REQUIREMENTS_PROJECTS_SUMMARY.md#71-ambiguities) | `PRJ` | `Deadline` sớm hơn `Start Date` được chấp nhận ở cả client lẫn server — lỗi hay cố ý? | STORY-PRJ-04 · dữ liệu hỏng lan sang Gantt, mốc tiến độ, báo cáo |
+| [AMB-PRJ-06](projects/REQUIREMENTS_PROJECTS_SUMMARY.md#71-ambiguities) | `PRJ` | Dự án **0 công việc** hiển thị `Project Progress 100%` trong khi thẻ `Open Tasks` cùng trang ghi `0%` | STORY-PRJ-07 · báo cáo tiến độ sai với mọi dự án mới |
+| [AMB-PRJ-14](projects/REQUIREMENTS_PROJECTS_SUMMARY.md#71-ambiguities) | `PRJ` | `Visible Tabs` và 18 công tắc quyền khách hàng tác động tới khu quản trị hay chỉ cổng khách hàng? | STORY-PRJ-03 (11 REQ) — BLOCKED; cổng khách hàng ngoài phạm vi toàn dự án |
+
+**Đã xử lý — không còn chặn tiến độ:**
+
+> Bảng dưới chỉ liệt kê AMB có **hệ quả cần nhớ ở cấp hệ thống**. Đủ 20/20 AMB của `LOGIN` và 14/14 AMB của `CUST` xem ở bảng Ambiguities của [`REQUIREMENTS_LOGIN_SUMMARY.md`](login/REQUIREMENTS_LOGIN_SUMMARY.md) · [`REQUIREMENTS_CUSTOMERS_SUMMARY.md`](customers/REQUIREMENTS_CUSTOMERS_SUMMARY.md).
+
+| Mã | Module | Trạng thái | Kết luận |
+|---|---|---|---|
+| AMB-LOGIN-21 | `LOGIN` | ✅ Đã trả lời 28-09-2026 | Khoá tài khoản **chưa deploy** → `REQ-LOGIN-41`, `45`→`51` ⚪. TC khoá FAIL trước khi dev báo deploy **không** mở bug |
+| AMB-LOGIN-24 | `LOGIN` | ✅ Đã trả lời 28-09-2026 | ⚠️ Khác giả định tạm: email không tồn tại **không** bị khoá → `REQ-LOGIN-50`; lộ email có tài khoản qua thông báo khoá → `RISK-LOGIN-10` **PO chấp nhận**, `REQ-LOGIN-15` thu hẹp phạm vi |
+| AMB-LOGIN-02 | `LOGIN` | ✅ Đã trả lời 18-08-2026 · ⚠️ **bị thay thế 28-09-2026** | ~~Không có cơ chế khoá tài khoản~~ → ticket `CRM-LOGIN-101` chốt **có khoá** (5 lần sai → 15 phút), `REQ-LOGIN-41` viết lại, `RISK-LOGIN-03` **mở lại**. 🔒 TC sai mật khẩu chỉ dùng tài khoản `Project Manager`, cấm nhập sai với `Admin` |
+| AMB-LOGIN-04 | `LOGIN` | ⏭️ Bỏ qua 18-08-2026 | Không kiểm chứng luồng gửi mail với email có thật. `REQ-LOGIN-27` ra ngoài phạm vi · `RISK-LOGIN-04` **chấp nhận** |
+| AMB-LOGIN-14 | `LOGIN` | ⏭️ Chuyển module 18-08-2026 | Kiểm chứng popup cảnh báo timer giao cho module `TASK` — **nhớ cập nhật ngược `REQ-LOGIN-30`** khi recon `TASK` |
+| AMB-LOGIN-15 | `LOGIN` | ⏭️ Bỏ qua 18-08-2026 | Remember Me không hoạt động → `REQ-LOGIN-40` ra ngoài phạm vi · thêm `RISK-LOGIN-08` (checkbox vẫn hiển thị và vẫn cấp cookie) |
+| AMB-LOGIN-19 | `LOGIN` | ✅ Đã trả lời 19-09-2026 | Phiên 1 giờ tính theo **thời gian không hoạt động**, mỗi thao tác gia hạn lại → `REQ-LOGIN-42` thêm AC gia hạn. `LOGIN` **hết ambiguity treo** |
+| AMB-LOGIN-20 | `LOGIN` | ✅ Đã trả lời 19-09-2026 | Truy cập qua `http://` **bắt buộc** tự chuyển sang HTTPS + HSTS → thêm `REQ-LOGIN-44`. Hệ thống chưa đạt (đo `curl -I`) → bug `TC039` giữ mở |
+| AMB-CUST-01 | `CUST` | ✅ Đã trả lời 19-09-2026 | Dựng lại ma trận phân quyền bằng tài khoản PM: 38/39 ô. **Khác giả định tạm** — PM có giao diện xoá / `Mass Delete` như Admin → tách `AMB-CUST-14` 🟡 + `RISK-CUST-08` |
+| AMB-CUST-14 | `CUST` | ✅ Đã trả lời 19-09-2026 | Trùng giả định: PM **được** xoá khách hàng (cấu hình cố ý) · PM **không** xem mục Vault mức "chỉ quản trị viên". `RISK-CUST-08` → đã chấp nhận. `CUST` **hết ambiguity treo** |
+| AMB-CUST-02 | `CUST` | ✅ Đã trả lời 19-09-2026 | Company toàn khoảng trắng vẫn lưu được **là lỗi** → `REQ-CUST-43` 🟡, cần mở bug |
+| AMB-CUST-03 | `CUST` | ✅ Đã trả lời 19-09-2026 | Theo giả định: phải tự chuyển về tab chứa lỗi → `REQ-CUST-42` 🟡, cần mở bug |
+| AMB-CUST-11 | `CUST` | ✅ Đã trả lời 19-09-2026 | Hệ thống chặn và báo lỗi → `REQ-CUST-82` ⚪, cần môi trường riêng để kiểm chứng |
+
+### 3.2. Vấn đề cấp hệ thống đang treo
+
+| Vấn đề | Ảnh hưởng | Cần ai giải quyết |
+|---|---|---|
+| ✅ **ĐÃ GIẢI QUYẾT 18-08-2026** — chỉ có 1 account, chưa biết hệ thống có mấy role | Đã được cấp tài khoản **đủ 3 vai trò**. Ma trận phân quyền của `LOGIN` đã kiểm chứng 100%, của `CUST` 38/39 ô (19-09-2026). ⚠️ **`PRJ` vẫn còn 28 ô `❔`** — recon từ trước khi có tài khoản, cần **chạy lại phần ma trận phân quyền** bằng tài khoản `Project Manager` | Việc còn lại: cập nhật ma trận cho `PRJ` (`AMB-PRJ-01`) |
+| Master data (Taxes · Payment Modes · Departments · Lead Sources · Contract Types…) nằm sau khu Setup 403 | Danh sách giá trị hợp lệ của nhiều dropdown chỉ suy được, không kiểm chứng được. ⚠️ Tài khoản `Project Manager` **cũng bị `access_denied`** ở khu Setup — vấn đề này **chưa** được gỡ | Cần account có quyền vào khu Setup |
+| Không có môi trường riêng để test thao tác phá huỷ | `REQ-CUST-82` (xoá khách hàng có dữ liệu liên quan — PO đã chốt hành vi, chưa kiểm chứng), `AMB-PRJ-11` (sao chép dự án) và `AMB-PRJ-13` (CRUD các tab thuộc dự án) không kiểm chứng được. Xoá hàng loạt cũng phải hoãn. Nhập CSV **đã gỡ** — PO cho phép nhập thật trên môi trường dùng chung (19-09-2026) | Cấp một môi trường staging riêng, hoặc chốt cho phép chạy trong khung giờ thấp điểm |
+| Cổng khách hàng nằm ngoài phạm vi | `AMB-PRJ-14` — toàn bộ `STORY-PRJ-03` (11 REQ về `Visible Tabs` và 18 công tắc quyền khách hàng) chỉ kiểm chứng được ở mức "biểu mẫu ghi nhận đúng", không kiểm chứng được tác dụng thật. Cùng vấn đề sẽ lặp lại ở `CTR` (khách ký hợp đồng), `PROP` (khách bình luận đề xuất), `KB` | Chốt phạm vi cổng khách hàng: đưa vào hay xác nhận loại bỏ vĩnh viễn |
+| Dữ liệu rác từ các đợt automation trước | Danh sách dự án có hơn 50 bản ghi `AUTO_POM_*`, `Project Automation *`, `[AUTO_HT] *` không được dọn. Mọi khẳng định theo tổng số bản ghi đều không tin được | Thống nhất quy ước đặt tên + dọn dữ liệu cho mọi đợt chạy automation; cân nhắc một đợt dọn thủ công dữ liệu rác đang tồn |
 
 ---
 
 ## 4. Cấu trúc thư mục chuẩn
 
 ```
-docs/
-├── requirements/
-│   ├── README.md                              ← TỆP NÀY — danh mục
-│   ├── _discovery/                            ← TẦNG KHÁM PHÁ — cấp hệ thống
-│   │   ├── system_map.md                      ← INDEX — TÊN TỆP BẤT BIẾN
-│   │   ├── modules/module_NN_<slug>.md        ← chi tiết từng module
-│   │   └── evidence/*.png                     ← 1 ảnh tổng quan mỗi module
-│   └── <module>/
-│       ├── requirements_<module>.md           ← INDEX — TÊN TỆP BẤT BIẾN
-│       ├── web/ · mobile/ · api/              ← tầng nền tảng
-│       ├── analysis/ · impact/
-├── testcases/
-│   ├── README.md
-│   └── <module>/test_cases_<module>.md
-├── executions/
-├── bugs/
-└── user-guides/
+docs/requirements/
+├── README.md                              ← file này — DANH MỤC
+├── _discovery/                            ← TẦNG KHÁM PHÁ (không có mã REQ)
+│   ├── system_map.md                      ← INDEX — TÊN FILE BẤT BIẾN
+│   ├── modules/module_NN_<slug>.md        ← 21 file khám phá
+│   └── evidence/*.png                     ← 30 ảnh full-page
+└── <module>/                              ← TẦNG MODULE (sinh dần khi recon)
+    ├── REQUIREMENTS_<TÊN_MODULE>_SUMMARY.md           ← INDEX — TÊN FILE BẤT BIẾN · phần chung + ## Bản đồ tài liệu
+    ├── web/                               ← TẦNG NỀN TẢNG — chỉ 3 tên: web · mobile · api
+    │   ├── requirements_<module>_web.md   ← REQ chỉ áp web · Field Spec · Validation · Evidence
+    │   ├── evidence/*.png
+    │   └── stories/story_NN_<slug>.md     ← khi file nền tảng vượt ngưỡng
+    ├── mobile/ · api/                     ← khi module có thêm nền tảng
+    ├── analysis/analysis_<TICKET-ID>.md   ← cấp module
+    └── impact/impact_<TICKET-ID>.md       ← Impact Report — input cho tầng test case
 ```
+
+> **Trạng thái chuyển đổi tầng nền tảng:** `LOGIN` ✅ đã chuyển (19-09-2026) · `CUST` ✅ đã chuyển (19-09-2026) · `PRJ` còn cấu trúc cũ (`evidence/`, `stories/` nằm thẳng dưới thư mục module) — sẽ chuyển **một lần** ở lần đầu một workflow sinh/cập nhật chạm lại module đó.
 
 ---
 
@@ -189,26 +156,38 @@ docs/
 
 | Tình huống | Workflow | Ghi vào đâu |
 |---|---|---|
-| Chưa biết hệ thống có module nào | `/discover-system` | `_discovery/` + tệp này |
-| Cần requirements chi tiết cho 1 module web | `/generate-requirements-from-website <module>` | `<module>/requirements_<module>.md` |
-| Có ticket sửa đổi module đã có tài liệu | `/update-requirements-from-ticket` | `<module>/impact/` + Nhật ký thay đổi |
-| Cần test case | `/generate-testcases-manual-rbt` hoặc `/generate-testcases-from-requirements` | `docs/testcases/<module>/` |
-| Phát hiện module bị sót | `/discover-system` **Mode ADD** | Bổ sung dòng vào bảng mục 1 |
-| Có mặt mới (app, API) | `/discover-system` **Mode ADD** | Cột `Nền tảng` + `api_map.md` |
+| Khảo sát chi tiết một module | `/generate-requirements-from-website <module>` | `docs/requirements/<module>/REQUIREMENTS_<TÊN_MODULE>_SUMMARY.md` + cập nhật dòng tương ứng ở bảng mục 1 |
+| Phát hiện module bị sót | `/discover-system` (Mode ADD) | `_discovery/` + thêm dòng ở mục 1 |
+| Hệ thống deploy tính năng mới | `/discover-system` (Mode DELTA) | Nhật ký khám phá ở `system_map.md` |
+| Có ticket sửa yêu cầu đã có | `/update-requirements-from-ticket` | Tài liệu module + Nhật ký thay đổi + `impact/impact_<TICKET-ID>.md` |
+| **Requirements vừa đổi, bộ TC đã có cần đồng bộ** | `/update-testcases-from-impact` | Sửa tại chỗ `docs/testcases/<module>/TEST_CASES_<TÊN_MODULE>_SUMMARY.md`, giữ nguyên TC ID |
+| Sinh test case sau khi có requirements | `/generate-testcases-manual-rbt` hoặc `/generate-testcases-from-requirements` | `docs/testcases/<module>/` |
+
+**Thứ tự recon đã chốt:** `LOGIN → CUST → CONT → LEAD → PRJ → TASK → EST → PROP → INV → PAY → CN → SUB → CTR → EXP → ITEM → TICK → ESTREQ → KB → REP → DASH → TODO → REM → PROF`
 
 ---
 
 ## 6. Nhật ký danh mục
 
-| Ngày | Thay đổi | Nguồn |
-|---|---|---|
-| 19-09-2026 | Khởi tạo danh mục. Thêm 26 module, cấp 26 prefix. Chốt tiền tố TC ID `CRM_`, môi trường **không** dùng chung, năng lực QA chỉ có DevTools. Mở `AMB-SYS-01` → `AMB-SYS-03` | `/discover-system` mode UI — mặt Web `/admin` |
-| 19-09-2026 | Bổ sung **33 ảnh evidence** phủ 26/26 module (đã mở lại xác minh từng ảnh). Giải 9 nghi vấn trạng thái; phát hiện thêm trạng thái `Cancelled` của `INV`, Thùng rác của `CTR`, tích hợp **Stripe** của `SUB`. Nâng ước REQ của `RPT` từ 25–32 lên 40–55. Ghi nhận **10 module đang không có dữ liệu** — phải tự tạo trước khi recon | `/discover-system` — lượt chụp evidence bằng Playwright + Chrome thật |
-| 19-09-2026 | Bổ sung ảnh màn hình **Quên mật khẩu** của `LOGIN` → **34 ảnh**. Lượt trước chỉ chụp *liên kết* chứ chưa mở màn hình phía sau — người dùng phát hiện thiếu. Thêm mục `## Mức xác minh của từng route` vào **cả 21 tệp module**, tách rõ ✅ đã mở thật / 🔗 mới thấy liên kết / ❔ chưa xác minh được | `/discover-system` — bổ sung |
-| 19-09-2026 | **Đổi quy ước đặt tên module sang `Tên trên website (tiếng Việt)`** theo yêu cầu người dùng, áp cho toàn bộ `README.md`, `system_map.md` và 21 tệp module — gồm cả tên màn hình trong Danh mục Evidence. Thêm bảng đối chiếu Anh–Việt ở mục 1. **Prefix giữ nguyên tuyệt đối** | `/discover-system` — chuẩn hoá cách đặt tên |
-| 19-09-2026 | **Đổi tên 21 tệp module sang slug tiếng Anh** (`module_02_khach_hang.md` → `module_02_customers.md`), cập nhật 72 tham chiếu trong `system_map.md`. Cố ý lệch CLAUDE.md mục 6.5 — người dùng chốt. **Prefix, số thứ tự module và nội dung tệp không đổi** | `/discover-system` — chuẩn hoá tên tệp |
-| 19-09-2026 | **Tách `Contacts` khỏi `CUST` và `Payments` khỏi `INV`** theo yêu cầu người dùng. Cấp 2 prefix mới **`CTC`** · **`PAY`** → **28 module / 23 tệp**. Đánh số lại tệp module theo thứ tự khảo sát; đổi tên 2 ảnh evidence theo prefix mới. Ước REQ: `CUST` 85–110 → 55–70, `INV` 70–90 → 50–65. **Sửa lại tổng ước lượng toàn hệ thống thành ~706–942 REQ** — các con số ghi trước đó trong ngày là cộng nhẩm sai | Người dùng chốt |
-| 20-09-2026 | Phát hành tài liệu requirements module **`LOGIN`** — 40 REQ, 12 AMB, 6 RISK, 9 Story, 18 ảnh evidence. Cập nhật dòng `LOGIN`: `Nền tảng` → Web ✅, `Trạng thái recon` → ✅, `REQ đã dùng` 01 → 40, `Mã kế tiếp` `REQ-LOGIN-41`, `AMB treo` 5 mã 🔴. Bổ sung bảng trạng thái REQ (mục 2) và 5 ambiguity 🔴 (mục 3) | `/generate-requirements-from-website LOGIN` |
-| 20-09-2026 | **Đối chiếu danh mục ↔ thư mục thực tế:** glob `docs/requirements/*/requirements_*.md` ra đúng 1 module (`login`), khớp với dòng duy nhất đang ở trạng thái ✅. Không phát hiện module thiếu dòng, dòng mồ côi, lệch `Mã kế tiếp`, hay trùng prefix | Đối chiếu bắt buộc của workflow |
-| 21-09-2026 | **Chốt toàn bộ 12 ambiguity của `LOGIN`** theo Assumption tạm (`LOGIN-AMB-RESOLVE-001`). Sinh 3 REQ mới (41→43, đều ⚪), sửa 9 REQ sang 🟡, thêm `RISK-LOGIN-07`. Gỡ 5 mã `AMB-LOGIN` khỏi mục 3. Cập nhật dòng `LOGIN`: `REQ đã dùng` 01 → 43, `Mã kế tiếp` `REQ-LOGIN-44`, `AMB treo` → `—`. ⚠️ Ba REQ (30, 31, 38) nay **trái với build hiện tại** — cần raise bug | `/update-requirements-from-ticket` — delta mode |
-| 21-09-2026 | **Gộp tài liệu `LOGIN` về một tệp.** `login/web/requirements_login_web.md` nhập vào `login/requirements_login.md`; gỡ thư mục `login/web/`, chuyển ảnh sang `login/evidence/`. Module chỉ có một nền tảng nên không cần tầng `web/`. **Không** REQ/AMB/RISK/Story nào bị thêm, sửa nội dung hay đánh lại mã — giữ nguyên 40 REQ · 12 AMB · 6 RISK · 9 Story · 18 ảnh. Liên kết trong danh mục không đổi | Người dùng yêu cầu |
+| Ngày | Thay đổi |
+|---|---|
+| 28-09-2026 | **PO trả lời `AMB-LOGIN-28`** — chốt theo giả định tạm: bỏ trống email không tính · PM bị từ chối ở cổng khách hàng có tính. Chỉ bổ sung AC cho `REQ-LOGIN-52`, `55`, không đổi số REQ. `LOGIN` **hết ambiguity treo**. Chuẩn hoá tên biến `.env` theo `<VAI_TRÒ>_<THUỘC_TÍNH>` |
+| 28-09-2026 | **PO trả lời `AMB-LOGIN-27` + cấp tài khoản PM, Customer** (ticket `CRM-LOGIN-101`) — cổng khách hàng khoá **giống** `/admin` (`REQ-LOGIN-54` hết BLOCKED) · bộ đếm **dùng chung**, Customer bị từ chối ở `/admin` cũng tính → `REQ-LOGIN-55` ⚪ · mở `AMB-LOGIN-28` 🟡. `LOGIN` 55 REQ, 51 trong phạm vi. ⚪ 19 → 20, Tổng 242 → 243. Tài khoản lưu ở `.env`, **không** ghi vào `docs/` |
+| 28-09-2026 | **PO trả lời `AMB-LOGIN-26` (ticket `CRM-LOGIN-101`)** — bỏ trống mật khẩu và sai CSRF **tính** vào bộ đếm → `REQ-LOGIN-52`, `53` · cổng khách hàng `/login` **cũng** khoá → `REQ-LOGIN-54` (cả ba ⚪) · không gia hạn khi thử lại · **không** có tài khoản PM riêng. Mở `AMB-LOGIN-27` 🟡. `LOGIN` 54 REQ, 50 trong phạm vi. ⚪ 16 → 19, Tổng 239 → 242. ⚠️ Nay **6 TC** tiêu hao bộ đếm trên `admin@example.com` (thêm `TC_014`, `TC_042`) |
+| 28-09-2026 | **PO trả lời `AMB-LOGIN-21`→`25` (ticket `CRM-LOGIN-101`)** — khoá tài khoản **chưa deploy**: `REQ-LOGIN-41`, `45`→`49` chuyển ⚪ · thêm `REQ-LOGIN-50` (email không tồn tại không bị khoá), `51` (hết khoá thì bộ đếm về 0) ⚪ · `REQ-LOGIN-15` 🟡 thu hẹp phạm vi · `RISK-LOGIN-10` (lộ email có tài khoản — PO chấp nhận) · vế chưa trả lời gom vào `AMB-LOGIN-26` 🟡. `LOGIN` 51 REQ, 47 trong phạm vi, ambiguity 🔴 về **0**. Active 203 → 197, ⚪ 7 → 16 (**kèm sửa số cũ ghi sai 7 thay vì 8**), Tổng 237 → 239 |
+| 28-09-2026 | **Ticket `CRM-LOGIN-101` — khoá tài khoản** (`/update-requirements-from-ticket`). `REQ-LOGIN-41` 🟡 **đảo ngược** quyết định PO 18-08-2026 (không khoá → khoá sau 5 lần sai liên tiếp, 15 phút) · thêm `REQ-LOGIN-45`→`49` 🟢 · mở `AMB-LOGIN-21`→`25` (2 🔴) · `RISK-LOGIN-03` mở lại · thêm `RISK-LOGIN-09`. `LOGIN` 49 REQ, 45 trong phạm vi. Active 199 → 203, Changed 25 → 26, Tổng 232 → 237. ⚠️ 4 TC đang dùng `admin@example.com` với mật khẩu sai — phải chuyển sang tài khoản PM trước lượt chạy kế tiếp. Impact Report: [login/impact/impact_CRM-LOGIN-101.md](login/impact/impact_CRM-LOGIN-101.md) |
+| 21-09-2026 | **Đồng bộ danh mục với thực tế `LOGIN`/`CUST`** — không đổi REQ nào. Mục 4: `LOGIN` đã chuyển tầng nền tảng từ 19-09-2026 (danh mục còn ghi cấu trúc cũ). Mục 2: phạm vi `LOGIN` sửa `39/41` → `42/44` (sau khi thêm `REQ-LOGIN-42`→`44`); bỏ cảnh báo "REQ 🟡 chưa có TC" vì `TEST_CASES_LOGIN_SUMMARY.md` đã có. Mục 3.1: ghi chú bảng "Đã xử lý" chỉ là bản rút gọn, trỏ về tài liệu module |
+| 19-09-2026 | **Hai quyết định PO trả lời qua chat.** `AMB-LOGIN-20` (mở và đóng cùng ngày): ép HTTPS là **bắt buộc** → thêm `REQ-LOGIN-44` 🟢 — `LOGIN` 44 REQ, 40 trong phạm vi; `CRM_LOGIN_TC_039` chuyển truy vết từ `REQ-LOGIN-01` sang REQ mới. `AMB-CUST-14` ✅ trùng giả định, không đổi REQ. Active 198 → 199, Tổng 231 → 232. **Cả `LOGIN` lẫn `CUST` không còn ambiguity treo** |
+| 19-09-2026 | **`CUST` đồng bộ requirements với evidence** — đo lại DOM thật 5 điểm lệch mà bộ TC phát hiện: 4 REQ 🟡 (`15`, `17`, `22`, `70`), 2 REQ chỉ ghi chú hiển thị (`11`, `16`), thêm `REQ-CUST-84` 🟢 (khoá đổi tiền tệ khi đã có giao dịch). Active 201 → 198, Changed 21 → 25, Tổng 230 → 231 |
+| 19-09-2026 | **`LOGIN` và `PRJ` chuyển sang tầng nền tảng** (skill `skills-requirements-analyzer` mục 5.3), cùng chuẩn với `CUST`. `LOGIN`: 43 REQ + mục 2, 3, 4, 5, 8, 9, 12 → `login/web/requirements_login_web.md`, ảnh → `login/web/evidence/`. `PRJ`: `stories/` → `projects/web/stories/`, ảnh → `projects/web/evidence/`, mục 2, 6, 8 → `projects/web/requirements_projects_web.md`. Index giữ tên và vị trí, có `## Bản đồ tài liệu` mới. **Mã REQ, số mục, nội dung không đổi**. Thư mục cũ `login/evidence/`, `projects/evidence/`, `projects/stories/` đã bỏ |
+| 19-09-2026 | **Chuyển `CUST` sang cấu trúc tầng nền tảng** — 83 REQ (toàn bộ chỉ áp web) cùng đặc tả trường, validation, luồng, NFR quan sát và danh mục evidence sang `customers/web/requirements_customers_web.md`; 26 ảnh sang `customers/web/evidence/`. Index `REQUIREMENTS_CUSTOMERS_SUMMARY.md` giữ nguyên tên và vị trí, thêm `## Bản đồ tài liệu`. Mã REQ, số mục và nội dung không đổi. Mục 4 của danh mục cập nhật sơ đồ có tầng nền tảng |
+| 19-09-2026 | **Chốt 13 quyết định PO cho module `CUST`** (`/update-requirements-from-ticket`, nguồn `PO-2026-09-19`) — `AMB-CUST-01` dựng lại ma trận phân quyền bằng tài khoản `Project Manager` (38/39 ô) và phát hiện **PM có giao diện xoá / `Mass Delete` như Admin** → `AMB-CUST-14` + `RISK-CUST-08`. `AMB-CUST-12` nhập thật 2 khách hàng (`14625`, `14626` — ⚠️ **chưa dọn**). `AMB-CUST-02`, `03` chốt là lỗi → `REQ-CUST-42`, `43` ghi kỳ vọng đúng mà hệ thống chưa đạt → **cần mở bug**. Module lên **83 REQ**, ambiguity 🔴 của `CUST` về **0**, **không Story nào còn BLOCKED**. Impact Report: [customers/impact/impact_PO-2026-09-19.md](customers/impact/impact_PO-2026-09-19.md) |
+| 19-09-2026 | **`LOGIN` hết ambiguity treo (19/19).** `AMB-LOGIN-19` ✅ — phiên 1 giờ tính theo thời gian không hoạt động, mỗi thao tác gia hạn lại → `REQ-LOGIN-42` chuyển 🟡 Changed (Active 204 → 203, Changed 15 → 16). Kèm sửa sót `RISK-LOGIN-05` trong `REQUIREMENTS_LOGIN_SUMMARY.md` (vẫn ghi `AMB-LOGIN-03` treo dù đã ⏭️ từ 18-08-2026). ⚠️ `CRM_LOGIN_TC_026` stale + cần thêm 1 TC cho vế gia hạn — xem Nhật ký của module |
+| 11-09-2026 | **Bổ sung dòng `Năng lực kiểm thử của QA`** vào bảng thuộc tính đầu file — quyền gọi API · truy vấn CSDL · kiểm tầng tích hợp · xem nhật ký hoạt động · DevTools. Đây là đầu vào cho **nhánh Vòng 3** của mọi bộ TC; trước đây không có chỗ lưu nên agent phải hỏi user lại ở **từng module**, dù quyền của QA giống nhau trên toàn hệ thống. Mục nhật ký hoạt động là **kết quả đo thật** chứ không phải câu trả lời từ trí nhớ: `Utilities → Activity Log` trả **Từ chối truy cập** với tài khoản `Admin` demo. Luật *đọc trước · hỏi một lần · ghi lại ngay* đã đưa ngược vào `skills-rbt-manual-testing` (mục Vòng 3 + anti-pattern), `/discover-system` Bước 0 và `CLAUDE.md` — dự án sau không lặp lại |
+| 18-08-2026 | **Chốt 13 quyết định PO còn lại + được cấp tài khoản 3 vai trò** (`/update-requirements-from-ticket`, nguồn `PO-2026-08-18-B`) — **`AMB-LOGIN-01` gỡ được nút thắt lớn nhất của toàn dự án**: có tài khoản `Admin` · `Project Manager` · `Customer`, ma trận phân quyền `LOGIN` kiểm chứng **100%**. Phát hiện `Customer` dùng hệ thống đăng nhập **tách biệt** ở `/login` và không vào được `/admin` → `REQ-LOGIN-43`. Phiên sống **1 giờ** → `REQ-LOGIN-42`. Module lên **43 REQ**, ambiguity còn treo **1**. ⚠️ Hai REQ (`16`, `25`) nay ghi kỳ vọng đúng mà hệ thống chưa đạt → **cần mở bug**. Impact Report: [login/impact/impact_PO-2026-08-18-B.md](login/impact/impact_PO-2026-08-18-B.md) |
+| 18-08-2026 | **Chốt 4 quyết định PO cho module `LOGIN`** (`/update-requirements-from-ticket`, nguồn `PO-2026-08-18`) — `AMB-LOGIN-02` ✅ không khoá tài khoản → `REQ-LOGIN-41` · `AMB-LOGIN-04` ⏭️ bỏ qua luồng gửi mail · `AMB-LOGIN-14` ⏭️ chuyển kiểm chứng timer sang module `TASK` · `AMB-LOGIN-15` ⏭️ Remember Me không hoạt động. Module lên **41 REQ**, ambiguity 🔴 giảm từ 5 xuống **2**, **không Story nào còn BLOCKED**. Impact Report: [login/impact/impact_PO-2026-08-18.md](login/impact/impact_PO-2026-08-18.md) |
+| 18-08-2026 | **Rà soát chất lượng module `LOGIN`** — 3 lỗi 🔴 (token `autologin` thật bị commit vào tài liệu · `REQ-LOGIN-09` có AC không chứng minh được kết luận · danh mục evidence khai sai trạng thái ảnh) và 5 lỗi 🟡. Kiểm chứng lại trên UI thật phát hiện thêm: `REQ-LOGIN-29` **sai** (đếm 2 phần tử DOM nhưng 1 cái `display:none` ở desktop), tiêu đề tab thật là `(16) Dashboard` chứ không phải `Dashboard`. Module lên **40 REQ** (thêm `36`→`40`), 17 AMB, 10 REQ chuyển 🟡. Thay 2 ảnh Dashboard full-page chứa dữ liệu khách hàng bằng ảnh viewport. Toàn bộ luật rút ra đã đưa ngược vào `skills-requirements-analyzer` mục 7.1/7.2/7.2.1 và mục 4.3 để không tái diễn ở module/dự án khác |
+| 14-08-2026 | Recon module `PRJ` bằng `/generate-requirements-from-website` — **104 REQ**, 10 Story, 16 AMB (6 🔴), 7 RISK, 31 ảnh evidence. Module **vượt ngưỡng 80 REQ** nên **tách file** theo mục 5.1 của skill: index `REQUIREMENTS_PROJECTS_SUMMARY.md` + 10 file trong `stories/`. Đây là module đầu tiên của dự án phải tách. Đối chiếu danh mục với thư mục `docs/requirements/`: khớp, không có module lạc hay prefix trùng |
+| 14-08-2026 | Recon module `CUST` bằng `/generate-requirements-from-website` — 79 REQ, 10 Story, 13 AMB (4 🔴), 7 RISK, 21 ảnh evidence. Module lớn hơn ước lượng của tầng khám phá (~45–65 → 79 REQ) nhưng vẫn dưới ngưỡng 80 nên **giữ 1 file**, không tách. Đối chiếu danh mục với thư mục `docs/requirements/`: khớp, không có module lạc hay prefix trùng |
+| 14-08-2026 | Recon module `LOGIN` bằng `/generate-requirements-from-website` — 35 REQ, 6 Story, 14 AMB, 7 RISK, 9 ảnh evidence. Đối chiếu danh mục với thư mục `docs/requirements/`: khớp, không có module lạc hay prefix trùng |
+| 14-08-2026 | Khởi tạo danh mục từ `/discover-system` Mode UI — 23 module, 23 prefix. Setup (403) và Calendar/Media/Bulk PDF Export **không cấp prefix**, ghi ở mục "Vùng chưa cấp prefix". Chốt tiền tố TC ID `CRM_` |

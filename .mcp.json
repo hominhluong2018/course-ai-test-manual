@@ -4,10 +4,10 @@
       "command": "npx",
       "args": [
         "-y",
-        "@playwright/mcp@latest",
-        "--browser=chrome",
-        "--viewport-size=1600,750",
-        "--output-dir=.playwright-mcp"
+        "@playwright/mcp",
+        "--viewport-size=1600,770",
+        "--config",
+        ".claude/playwright-mcp-config.json"
       ]
     }
   }

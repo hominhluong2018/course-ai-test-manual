@@ -15,7 +15,6 @@
 #   • Dòng bắt đầu bằng # là chú thích — giữ nguyên.
 #   • 🔒 KHÔNG ghi URL có token, mật khẩu, API key — những thứ đó ở .env.
 #
-#  Mẫu đã điền đủ (hệ thống hư cấu): plans/master-test-plan/test_plan.template.yaml
 #  Nhãn đầu mỗi nhóm: BẮT BUỘC / tuỳ chọn · người thường nắm thông tin.
 # ══════════════════════════════════════════════════════════════════════
 
@@ -30,7 +29,7 @@ Mốc:
 
 # ─── 2. KIỂM SOÁT TÀI LIỆU ────────────── tuỳ chọn · QA Lead ─────────
 Kiểm soát tài liệu:
-  Người lập: Luong Ho            # để trống = người có vai trò "trưởng nhóm QA" ở Nhân lực
+  Người lập:                     # để trống = người có vai trò "trưởng nhóm QA" ở Nhân lực
   Người review:
     # - Tên:
     #   Vai trò:
@@ -60,12 +59,12 @@ Phạm vi:
     #   Người chịu trách nhiệm:  # ai/đợt nào lo phần này
     #   Người quyết định:
     #   Ngày quyết định:
-    - Nội dung: 25 module CRM còn lại (CTC · LEAD · ESTREQ · EST · PROP · CTR · ITEM · INV · PAY · CN · SUB · EXP · TASK · TIME · TICKET · KB · CAL · UTIL · RPT · DASH · SEARCH · TODO · REM · ANN · PROFILE)
+    - Nội dung: 20 module CRM còn lại (CONT · LEAD · TASK · EST · PROP · INV · PAY · CN · SUB · CTR · EXP · ITEM · TICK · ESTREQ · KB · REP · DASH · TODO · REM · PROF)
       Lý do: Không thuộc Release 1.0
       Người chịu trách nhiệm: Đợt sau
       Người quyết định: Anh Tester — QA Lead
       Ngày quyết định: 17-09-2026
-    - Nội dung: Hệ thống Book API (namespace _book-api/ — namespace này CHƯA tồn tại trong repo)
+    - Nội dung: Hệ thống Book API (namespace _book-api/)
       Lý do: Không thuộc Release 1.0
       Người chịu trách nhiệm: Đợt sau
       Người quyết định: Anh Tester — QA Lead
@@ -103,7 +102,7 @@ Nhân lực:
   #   Vai trò:                   # trưởng nhóm QA | kiểm thử viên | tự động hoá | khác
   #   Phụ trách: [LOGIN × web]   # "Toàn bộ" hoặc từng cặp MODULE × nền tảng
   #   Cần đào tạo:
-  - Tên: Luong Ho
+  - Tên: Anh Tester
     Vai trò: trưởng nhóm QA
     Phụ trách: [Toàn bộ]
     Cần đào tạo:
@@ -119,7 +118,7 @@ Nhân lực:
     Vai trò: kiểm thử viên
     Phụ trách: [PRJ × web]
     Cần đào tạo:
-  - Tên: Luong Ho
+  - Tên: Anh Tester
     Vai trò: tự động hoá
     Phụ trách: [LOGIN × web, CUST × web, PRJ × web]
     Cần đào tạo:
@@ -148,7 +147,7 @@ Công cụ:
   Quản lý lỗi: Jira · file markdown trong repo
   Quản lý kết quả kiểm thử: Jira · file markdown trong repo
   Nguồn chính khi lệch: Jira cho trạng thái bug · repo cho execution report   # nơi được coi là đúng khi hai công cụ lệch nhau
-  Tự động hoá: Playwright + Typescript + Allure report + GitHub Actions CI   # framework · ngôn ngữ · report
+  Tự động hoá: Playwright + Typescript + Allure report + GitLab Actions CI   # framework · ngôn ngữ · report
   Khác:
 
 
@@ -222,7 +221,7 @@ Chiến lược tự động hoá:
     # - Bộ chạy:                 # VD Smoke
     #   Khi nào:                 # mỗi commit | mỗi merge request | hằng đêm | mỗi build lên môi trường test | trước phát hành | chạy tay
     #   Môi trường:
-  Hệ thống CI: GitHub Actions (.github/workflows/) — repo chưa có file cấu hình, cần dựng
+  Hệ thống CI:
   Người bảo trì:
 
 
@@ -235,7 +234,7 @@ Mục tiêu:
 Ước lượng:
   Kỹ thuật: ba điểm   # tỷ lệ | ngoại suy | Wideband Delphi | Planning Poker | ba điểm | không ước lượng
   Tổng công sức (người-ngày):    # kỹ thuật "ba điểm" → để trống, agent tự tính
-  Giả định: Toàn hệ thống hiện có 0 TC (docs/testcases/ chưa tồn tại) — phải viết TC cho cả 3 module · CUST và PRJ chưa recon, 0 REQ (ước 55-70 và 60-80 REQ theo system_map), phải chạy /generate-requirements-from-website trước khi viết TC · bảng ba điểm dưới đây KHÔNG bao gồm công sức recon hai module đó · không tính công sức PO/BA làm UAT · không tính thời gian Dev sửa bug
+  Giả định: LOGIN đã có 50 TC nên chủ yếu viết mới cho CUST (79 REQ) và PRJ (104 REQ) · không tính công sức PO/BA làm UAT · không tính thời gian Dev sửa bug
   Chi tiết ba điểm:
     # Chỉ khi Kỹ thuật = ba điểm. Đơn vị người-ngày.
     # - Hạng mục:
